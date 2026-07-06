@@ -54,9 +54,17 @@ public class TripController {
      * @return redirect to a just creadeted trip
      */
     @PostMapping
-    public String createTrip(@ModelAttribute CreateTripRequest tripRequest){
-        tripService.createTrip(tripRequest);
-        return "redirect:/trips/my";
+    public String createTrip(@ModelAttribute CreateTripRequest tripRequest, Model model){
+        try{
+            tripService.createTrip(tripRequest);
+            return "redirect:/trips/my";
+        } 
+
+        catch (IllegalArgumentException exception){
+            model.addAttribute("tripRequest", tripRequest);
+            model.addAttribute("errorMessage", exception.getMessage());
+            return "trips/new-trip";
+        }
     }
 
     /**

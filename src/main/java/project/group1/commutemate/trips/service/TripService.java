@@ -34,6 +34,8 @@ public class TripService {
 
     // creates a new trip from the form data
     public Trip createTrip(CreateTripRequest request){
+        validateCreateTripRequest(request);
+
         Trip trip = new Trip(
                 null,
                 request.getStartLocation(),
@@ -44,6 +46,25 @@ public class TripService {
         );
 
         return tripRepository.save(trip);
+    }
+
+    // validator
+    private void validateCreateTripRequest(CreateTripRequest request) {
+        if (request.getStartLocation() == null || request.getStartLocation().isBlank()) {
+            throw new IllegalArgumentException("Start location is required.");
+        }
+
+        if (request.getDestination() == null || request.getDestination().isBlank()) {
+            throw new IllegalArgumentException("Destination is required.");
+        }
+
+        if (request.getDepartureTime() == null || request.getDepartureTime().isBlank()) {
+            throw new IllegalArgumentException("Departure time is required.");
+        }
+
+        if (request.getSeatsAvailable() < 1) {
+            throw new IllegalArgumentException("Seats available must be at least 1.");
+        }
     }
 
     // updates a trip to confirmed

@@ -1,5 +1,8 @@
 package project.group1.commutemate.trips.model;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Trip{
     private Long id; // unique
     private String startLocation;
@@ -48,6 +51,16 @@ public class Trip{
         return departureTime;
     }
 
+    public String getFormattedDepartureTime() {
+        if (departureTime == null || departureTime.isBlank()) {
+            return "";
+        }
+        LocalDateTime dateTime = LocalDateTime.parse(departureTime);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy 'at' h:mm a");
+
+        return dateTime.format(formatter);
+    }
+
     public int getSeatsAvailable(){
         return seatsAvailable;
     }
@@ -66,6 +79,7 @@ public class Trip{
     public enum TripStatus{
         CREATED,
         CONFIRMED,
+        COMPLETED,
         CANCELLED
     }
 }
