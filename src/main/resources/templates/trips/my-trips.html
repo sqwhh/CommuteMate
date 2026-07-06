@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Trips</title>
+</head>
+<body>
+    <h1>My Trips</h1>
+    <a href="/trips/new">Create New Trip</a>
+    <p th:if="${#lists.isEmpty(trips)}">
+        No trips yet.
+    </p>
+
+    <table th:if="${!#lists.isEmpty(trips)}" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Start Location</th>
+                <th>Destination</th>
+                <th>Departure Time</th>
+                <th>Seats</th>
+                <th>Status</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="trip : ${trips}">
+                <td th:text="${trip.id}"></td>
+                <td th:text="${trip.startLocation}"></td>
+                <td th:text="${trip.destination}"></td>
+                <td th:text="${trip.departureTime}"></td>
+                <td th:text="${trip.seatsAvailable}"></td>
+                <td th:text="${trip.status}"></td>
+                <td>
+                    <a th:href="@{/trips/{id}(id=${trip.id})}">View</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Trip</title>
+</head>
+<body>
+    <h1>Create New Trip</h1>
+    <form th:action="@{/trips}" th:object="${tripRequest}" method="post">
+        <div>
+            <label for="startLocation">Start Location:</label>
+            <input type="text" id="startLocation" th:field="*{startLocation}">
+        </div>
+
+        <div>
+            <label for="destination">Destination:</label>
+            <input type="text" id="destination" th:field="*{destination}">
+        </div>
+
+        <div>
+            <label for="departureTime">Departure Time:</label>
+            <input type="text" id="departureTime" th:field="*{departureTime}">
+        </div>
+
+        <div>
+            <label for="seatsAvailable">Seats Available:</label>
+            <input type="number" id="seatsAvailable" th:field="*{seatsAvailable}">
+        </div>
+
+        <button type="submit">Create Trip</button>
+    </form>
+    <br>
+    <a href="/trips/my">Back to My Trips</a>
+</body>
+</html>
