@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Rides</title>
+</head>
+<body>
+    <h1>Available Rides</h1>
+
+    <h2>Sample Available Rides</h2>
+
+    <ul>
+        <li>Driver: Alex | From: Surrey Central | To: SFU Burnaby | Time: 8:30 AM | Seats: 2</li>
+        <li>Driver: Maya | From: Metrotown | To: SFU Burnaby | Time: 9:00 AM | Seats: 3</li>
+    </ul>
+
+    <h2>Submitted Ride Requests</h2>
+
+    <p th:if="${#lists.isEmpty(rideRequests)}">
+        No ride requests have been submitted yet.
+    </p>
+
+    <ul th:unless="${#lists.isEmpty(rideRequests)}">
+        <li th:each="request : ${rideRequests}" th:text="${request}">
+            Ride request
+        </li>
+    </ul>
+
+    <p><a href="/ride-request/new">Create Another Ride Request</a></p>
+    <p><a href="/rider/dashboard">Back to Rider Dashboard</a></p>
+</body>
+</html>

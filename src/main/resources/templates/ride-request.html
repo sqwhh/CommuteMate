@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Ride Request</title>
+</head>
+<body>
+    <h1>Create Ride Request</h1>
+
+    <form method="post" action="/ride-request">
+        <label>Pickup Location:</label><br>
+        <input type="text" name="pickupLocation" required><br><br>
+
+        <label>Destination:</label><br>
+        <input type="text" name="destination" required><br><br>
+
+        <label>Date:</label><br>
+        <input type="date" name="date" required><br><br>
+
+        <label>Time:</label><br>
+        <input type="time" name="time" required><br><br>
+
+        <label>Seats Needed:</label><br>
+        <input type="number" name="seats" min="1" required><br><br>
+
+        <label>Notes:</label><br>
+        <textarea name="notes"></textarea><br><br>
+
+        <button type="submit">Create Request</button>
+    </form>
+
+    <p><a href="/rider/dashboard">Back to Rider Dashboard</a></p>
+</body>
+</html>

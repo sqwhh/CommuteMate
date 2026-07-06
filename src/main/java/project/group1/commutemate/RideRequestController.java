@@ -1,44 +1,47 @@
 package project.group1.commutemate;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
 public class RideRequestController {
+
+    private static final List<String> rideRequests = new ArrayList<>();
 
     @GetMapping("/ride-request/new")
     public String newRideRequest() {
-        return """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Create Ride Request</title>
-                </head>
-                <body>
-                    <h1>Create Ride Request</h1>
+        return "ride-request";
+    }
 
-                    <form>
-                        <label>Pickup Location:</label><br>
-                        <input type="text" name="pickupLocation"><br><br>
+    @PostMapping("/ride-request")
+    public String createRideRequest(
+            @RequestParam String pickupLocation,
+            @RequestParam String destination,
+            @RequestParam String date,
+            @RequestParam String time,
+            @RequestParam String seats,
+            @RequestParam String notes) {
 
-                        <label>Destination:</label><br>
-                        <input type="text" name="destination"><br><br>
+        String request = pickupLocation + " to " + destination
+                + " on " + date
+                + " at " + time
+                + " | Seats needed: " + seats
+                + " | Notes: " + notes;
 
-                        <label>Date:</label><br>
-                        <input type="date" name="date"><br><br>
+        rideRequests.add(request);
 
-                        <label>Time:</label><br>
-                        <input type="time" name="time"><br><br>
+        return "redirect:/rides";
+    }
 
-                        <label>Notes:</label><br>
-                        <textarea name="notes"></textarea><br><br>
-
-                        <button type="submit">Create Request</button>
-                    </form>
-
-                    <p><a href="/rider/dashboard">Back to Rider Dashboard</a></p>
-                </body>
-                </html>
-                """;
+    @GetMapping("/rides")
+    public String viewRides(Model model) {
+        model.addAttribute("rideRequests", rideRequests);
+        return "rides";
     }
 }
