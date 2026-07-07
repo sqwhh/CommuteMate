@@ -2,52 +2,49 @@ package project.group1.commutemate;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Epic 4: Incentives & Rewards
- * Uses the RideStore stub for now. Once Epic 3 has a real persisted
- * Ride entity with a status field, point this controller at that
- * instead of RideStore.
+ *
+ * Thin controller now — all reward logic lives in RewardService
+ *
+ * !! NOTE: /rides/{id}/complete below is a TEMPORARY manual trigger for test. 
  */
 @RestController
 public class RewardController {
-
     private final RideStore rideStore;
-    private final Map<String, Integer> pointsByDriver = new ConcurrentHashMap<>();
+    private final RewardService rewardService;
 
-    public RewardController(RideStore rideStore) {
+    public RewardController(RideStore rideStore, RewardService rewardService) {
         this.rideStore = rideStore;
+        this.rewardService = rewardService;
     }
 
-    // Helper endpoint just for testing — creates a ride in PENDING state.
-    // Epic 3's real "create ride" flow should replace the need for this
+    // Helper endpoint just for testing - creates a ride in CREATED state
     @PostMapping("/test/rides")
     public Ride createTestRide(@RequestParam String driverId, @RequestParam String riderId) {
         return rideStore.save(driverId, riderId);
     }
 
+    // TEMPORARY manual trigger — see note above. Will be removed once
+    // TripService.completeTrip() calls RewardService directly.
     @PostMapping("/rides/{id}/complete")
     public String completeRide(@PathVariable String id) {
         Ride ride = rideStore.findById(id);
         if (ride == null) {
             return "Ride not found";
         }
-        if (ride.getStatus() == Ride.Status.COMPLETED) {
+        if (ride.getStatus() == project.group1.commutemate.trips.model.Trip.TripStatus.COMPLETED) {
             return "Ride already completed — no points awarded";
         }
 
-        ride.setStatus(Ride.Status.COMPLETED);
+        ride.setStatus(project.group1.commutemate.trips.model.Trip.TripStatus.COMPLETED);
+        int awarded = rewardService.awardPointsForCompletedRide(ride.getDriverId());
 
-        int pointsToAward = 10; // flat rate for now; *can evolve into EcoScore formula later
-        pointsByDriver.merge(ride.getDriverId(), pointsToAward, Integer::sum);
-
-        return "Ride completed. " + pointsToAward + " points awarded to driver " + ride.getDriverId();
+        return "Ride completed. " + awarded + " points awarded to driver " + ride.getDriverId();
     }
 
     @GetMapping("/users/{driverId}/points")
     public int getPoints(@PathVariable String driverId) {
-        return pointsByDriver.getOrDefault(driverId, 0);
+        return rewardService.getPoints(driverId);
     }
 }

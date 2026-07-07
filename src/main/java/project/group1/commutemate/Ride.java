@@ -1,26 +1,22 @@
 package project.group1.commutemate;
 
+import project.group1.commutemate.trips.model.Trip.TripStatus;
+
 /**
- * !! TEMPORARY STUB for Epic 4 development !!
- * [swapping this out for the real entity straightforward later]
+ * TEMPORARY STUB for Epic 4 development
  */
 public class Ride {
-    public enum Status {
-        PENDING,
-        CONFIRMED,
-        COMPLETED
-    }
 
     private String id;
     private String driverId;
     private String riderId;
-    private Status status;
+    private TripStatus status;
 
     public Ride(String id, String driverId, String riderId) {
         this.id = id;
         this.driverId = driverId;
         this.riderId = riderId;
-        this.status = Status.PENDING;
+        this.status = TripStatus.CREATED;
     }
 
     public String getId() {
@@ -35,11 +31,11 @@ public class Ride {
         return riderId;
     }
 
-    public Status getStatus() {
+    public TripStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(TripStatus status) {
         this.status = status;
     }
 }

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * !! TEMPORARY in-memory store for Epic 4 development !!
+ * TEMPORARY in-memory store
  */
 @Component
 public class RideStore {
