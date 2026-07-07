@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Trip</title>
+</head>
+<body>
+    <h1>Create New Trip</h1>
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+    <p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
+
+    <form th:action="@{/trips}" th:object="${tripRequest}" method="post">
+        <div>
+            <label for="driverId">Driver ID:</label>
+            <input type="text" id="driverId" th:field="*{driverId}" placeholder="Example: driver1" required>
+        </div>
+        
+        <div>
+            <label for="startLocation">Start Location:</label>
+            <input type="text" id="startLocation" th:field="*{startLocation}" required>
+        </div>
+
+        <div>
+            <label for="destination">Destination:</label>
+            <input type="text" id="destination" th:field="*{destination}" required>
+        </div>
+
+        <div>
+            <label for="departureTime">Departure Time:</label>
+            <input type="datetime-local" id="departureTime" th:field="*{departureTime}" required>
+        </div>
+
+        <div>
+            <label for="seatsAvailable">Seats Available:</label>
+            <input type="number" id="seatsAvailable" th:field="*{seatsAvailable}" min="1" step="1" required>
+        </div>
+
+        <button type="submit">Create Trip</button>
+    </form>
+    <br>
+    <a href="/trips/my">Back to My Trips</a>
+</body>
+</html>
