@@ -31,7 +31,7 @@ public class RideService {
     }
 
     private void seed() {
-        LocalDate today = LocalDate.of(2026, 7, 6);
+        LocalDate today = LocalDate.now();
         add(new Ride(nextId(), "Priya S.", "PS", "Metrotown Station", "SFU Burnaby — AQ",
                 LocalDateTime.of(today, LocalTime.of(8, 15)), 4, 2, 4, 25, 82,
                 "Toyota Corolla · Silver", 4.9, "Leaving from Kiss & Ride, quiet drive."));
