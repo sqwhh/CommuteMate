@@ -2,6 +2,33 @@
 
 CommuteMate is a web-based application designed to help SFU students commute to the Burnaby campus more efficiently, reliably, and affordably. The platform connects student drivers and riders who have similar routes and schedules, making carpooling easier within the SFU community. Unlike traditional navigation applications, CommuteMate combines real-time transit information, weather conditions on Burnaby Mountain, and student-focused ride matching in a single platform. By improving access to transportation alternatives during transit disruptions and adverse weather conditions, the application aims to reduce commuting costs, alleviate parking congestion, and improve the overall student experience.
 
+## Tech Stack
+
+CommuteMate is a **Spring Boot** application (Java 21) that serves server-rendered **Thymeleaf** HTML pages styled with plain **CSS** and enhanced with vanilla **JavaScript**. Ride data is currently held in memory (`RideService`) so the full interface is browsable while persistence and the external APIs (TransLink, Open-Meteo, OpenRouteService) are built out in later iterations.
+
+## Running CommuteMate
+
+From the `group-project-1` directory:
+
+```bash
+./mvnw spring-boot:run        # or mvnw.cmd spring-boot:run on Windows
+```
+
+Then open <http://localhost:8080>. To build a runnable jar instead: `./mvnw clean package` then `java -jar target/commutemate-0.0.1-SNAPSHOT.jar`.
+
+## Screens
+
+| Path | Description | Epic |
+| --- | --- | --- |
+| `/` | Landing page — hero, live mountain/transit snapshot, feature grid | — |
+| `/auth` | Sign in / sign up with `@sfu.ca` validation (login/sign-up toggle, role picker) | 1 |
+| `/dashboard/rider` | Rider dashboard — next ride, suggested rides, weather, live transit, commute stats | 2 |
+| `/dashboard/driver` | Driver dashboard — earnings/points/eco stats, upcoming rides, rating | 2 & 4 |
+| `/rides/available` | Browse rides with live client-side search + sort (also works without JS) | 3 |
+| `/rides/create` | Publish a ride with a live preview and estimated-rewards panel | 5 |
+
+The visual design (SFU-red / mountain-teal theme, card layout, and copy) was prototyped separately and ported here into Thymeleaf + CSS + JS. Shared styles live in `src/main/resources/static/css/commutemate.css` and interactions in `static/js/commutemate.js`; the page-shared header/footer are Thymeleaf fragments in `templates/fragments/layout.html`.
+
 ## Problem Statement
 
 Commuting to SFU Burnaby presents several challenges for students. Many students rely heavily on a limited number of transit routes, such as the R5 and 145 buses. Service disruptions, delays, mechanical issues, or labour disputes can significantly impact access to campus. In addition, Burnaby Mountain experiences weather conditions that often differ from those in the surrounding metropolitan area. Snow, ice, and poor road conditions can create sudden transportation difficulties for both transit users and drivers.

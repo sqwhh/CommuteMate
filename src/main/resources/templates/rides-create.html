@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Create a ride — CommuteMate',
+  'Offer a ride up Burnaby Mountain and earn points.')}"></head>
+<body>
+<div class="min-h-screen bg-background">
+
+  <header th:replace="~{fragments/layout :: nav('drive')}"></header>
+
+  <main class="mx-auto max-w-5xl px-6 py-10">
+    <a th:href="@{/dashboard/driver}"
+       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+      <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg> Back to driver dashboard
+    </a>
+    <h1 class="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+      Offer a new ride
+    </h1>
+    <p class="mt-1.5 text-sm text-muted-foreground">
+      Post your route and let matched SFU students request seats.
+    </p>
+
+    <div class="mt-8 grid gap-6 lg:grid-cols-3">
+      <form method="post" th:action="@{/rides/create}" data-create-form="data-create-form"
+            class="lg:col-span-2 space-y-5 rounded-2xl border border-border bg-card p-6 card-lift">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-1.5 sm:col-span-2">
+            <label for="from" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Pickup</label>
+            <div class="relative">
+              <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></svg>
+              <input id="from" name="from" value="Metrotown Station" required="required"
+                     class="flex h-9 w-full rounded-md border border-input bg-transparent pl-9 pr-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+            </div>
+          </div>
+          <div class="space-y-1.5 sm:col-span-2">
+            <label for="to" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Destination</label>
+            <div class="relative">
+              <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></svg>
+              <input id="to" name="to" value="SFU Burnaby — AQ" required="required"
+                     class="flex h-9 w-full rounded-md border border-input bg-transparent pl-9 pr-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label for="date" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Date</label>
+            <input id="date" name="date" type="date" value="2026-07-07" required="required"
+                   class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+          </div>
+          <div class="space-y-1.5">
+            <label for="time" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Departure</label>
+            <input id="time" name="time" type="time" value="08:15" required="required"
+                   class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+          </div>
+          <div class="space-y-1.5">
+            <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Seats available: <span class="font-semibold" data-seats-label="data-seats-label">3</span></span>
+            <input type="range" name="seats" min="1" max="5" value="3" class="w-full accent-primary" />
+          </div>
+          <div class="space-y-1.5">
+            <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Price per seat: <span class="font-semibold" data-price-label="data-price-label">$4</span></span>
+            <input type="range" name="price" min="0" max="10" value="4" class="w-full accent-primary" />
+          </div>
+          <div class="space-y-1.5 sm:col-span-2">
+            <label for="notes" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Notes for riders (optional)</label>
+            <textarea id="notes" name="notes" rows="3"
+                      placeholder="Meet at the Kiss &amp; Ride, no eating in car please."
+                      class="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"></textarea>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button type="submit"
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-8">Publish ride</button>
+          <a th:href="@{/dashboard/driver}"
+             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">Cancel</a>
+        </div>
+      </form>
+
+      <aside class="space-y-4">
+        <div class="rounded-2xl border border-border bg-card p-5 card-lift">
+          <h3 class="font-display text-base font-semibold">Ride preview</h3>
+          <div class="mt-3 space-y-2 text-sm">
+            <p class="font-medium" data-preview-route="data-preview-route">Metrotown Station → SFU Burnaby — AQ</p>
+            <p class="text-muted-foreground" data-preview-when="data-preview-when">2026-07-07 at 08:15</p>
+            <div class="flex items-center gap-2 pt-2">
+              <svg class="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg>
+              <span data-preview-seats="data-preview-seats">3 seats</span>
+            </div>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-primary/30 bg-primary/5 p-5">
+          <div class="flex items-center gap-2 text-sm font-semibold text-primary">
+            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /><path d="M20 2v4" /><path d="M22 4h-4" /><circle cx="4" cy="20" r="2" /></svg> Estimated rewards
+          </div>
+          <div class="mt-3 space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">Points per trip</span>
+              <span class="font-semibold" data-est-points="data-est-points">+29</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">
+                <svg class="mr-1 inline h-3.5 w-3.5 text-emerald-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></svg>
+                Eco-Score
+              </span>
+              <span class="font-semibold" data-est-eco="data-est-eco">79</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-muted-foreground">Cost recovered</span>
+              <span class="font-semibold" data-est-cost="data-est-cost">$12</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+</body>
+</html>

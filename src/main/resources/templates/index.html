@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('CommuteMate — Carpool & transit for SFU Burnaby',
+  'Match with verified SFU students for rides up Burnaby Mountain. Live transit alerts, mountain weather, and rewards for every shared trip.')}"></head>
+<body>
+<div class="min-h-screen bg-hero-topo">
+
+  <header th:replace="~{fragments/layout :: nav('home')}"></header>
+
+  <section class="mx-auto max-w-7xl px-6 pt-16 pb-24 md:pt-24 md:pb-32">
+    <div class="grid items-center gap-12 md:grid-cols-2">
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+          <span class="h-1.5 w-1.5 rounded-full bg-primary"></span> For verified SFU students
+        </div>
+        <h1 class="mt-5 font-display text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+          Get up the mountain,<br />
+          <span class="text-primary">together.</span>
+        </h1>
+        <p class="mt-5 max-w-lg text-lg text-muted-foreground">
+          CommuteMate matches SFU students for carpools, tracks the R5 and 145 in real time, and warns you
+          before Burnaby Mountain snow shuts your commute down.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a th:href="@{/auth(mode='signup')}"
+             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-8">
+            Get started <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+          </a>
+          <a th:href="@{/auth}"
+             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-10 px-8">I already have an account</a>
+        </div>
+        <div class="mt-8 flex items-center gap-6 text-sm text-muted-foreground">
+          <div><span class="font-semibold text-foreground">1,200+</span> SFU students</div>
+          <div class="h-4 w-px bg-border"></div>
+          <div><span class="font-semibold text-foreground">4.9★</span> avg driver rating</div>
+          <div class="h-4 w-px bg-border"></div>
+          <div><span class="font-semibold text-foreground">$3–6</span> per ride</div>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="card-lift relative rounded-3xl border border-border bg-card p-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-medium">
+              <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /></svg>
+              </span>
+              Burnaby Mountain — now
+            </div>
+            <span class="rounded-full bg-accent/20 px-2.5 py-1 text-xs font-medium text-accent-foreground">
+              Snow advisory
+            </span>
+          </div>
+          <div class="mt-5 flex items-end gap-4">
+            <div class="text-5xl font-semibold tracking-tight">-2°</div>
+            <div class="pb-2 text-sm text-muted-foreground">
+              Light snow · winds 24 km/h<br />
+              Chains recommended past Gaglardi
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="rounded-xl border border-border bg-background/60 p-3">
+              <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6" /><path d="M15 6v6" /><path d="M2 12h19.6" /><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /><circle cx="7" cy="18" r="2" /><path d="M9 18h5" /><circle cx="16" cy="18" r="2" /></svg>
+                R5 Hastings
+              </div>
+              <div class="mt-1 text-sm font-semibold text-emerald-700">On time</div>
+            </div>
+            <div class="rounded-xl border border-border bg-background/60 p-3">
+              <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6" /><path d="M15 6v6" /><path d="M2 12h19.6" /><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /><circle cx="7" cy="18" r="2" /><path d="M9 18h5" /><circle cx="16" cy="18" r="2" /></svg>
+                145 Prod Way
+              </div>
+              <div class="mt-1 text-sm font-semibold text-amber-700">Delay 12m</div>
+            </div>
+            <div class="rounded-xl border border-border bg-background/60 p-3">
+              <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg>
+                Rides open
+              </div>
+              <div class="mt-1 text-sm font-semibold text-foreground">14 near you</div>
+            </div>
+            <div class="rounded-xl border border-border bg-background/60 p-3">
+              <div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /><path d="M20 2v4" /><path d="M22 4h-4" /><circle cx="4" cy="20" r="2" /></svg>
+                Your points
+              </div>
+              <div class="mt-1 text-sm font-semibold text-foreground">240 pts</div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -bottom-6 -right-6 hidden rounded-2xl border border-border bg-card p-4 shadow-lift md:block">
+          <div class="flex items-center gap-3">
+            <div class="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+              PS
+            </div>
+            <div>
+              <p class="text-sm font-medium">Priya matched your route</p>
+              <p class="text-xs text-muted-foreground">Metrotown → AQ · 8:15 AM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-6 pb-24">
+    <h2 class="font-display text-3xl font-semibold tracking-tight md:text-4xl">
+      Everything the R5 group chat can't do.
+    </h2>
+    <div class="mt-10 grid gap-4 md:grid-cols-3">
+      <div class="rounded-2xl border border-border bg-card p-6 card-lift hover:card-lift-hover">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold">Student-only matching</h3>
+        <p class="mt-1.5 text-sm text-muted-foreground">Verified with your @sfu.ca email. Match by schedule, route, and rating.</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-card p-6 card-lift hover:card-lift-hover">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6" /><path d="M15 6v6" /><path d="M2 12h19.6" /><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3" /><circle cx="7" cy="18" r="2" /><path d="M9 18h5" /><circle cx="16" cy="18" r="2" /></svg>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold">Live transit</h3>
+        <p class="mt-1.5 text-sm text-muted-foreground">TransLink service alerts and vehicle tracking for R5, 145, and every SFU-bound route.</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-card p-6 card-lift hover:card-lift-hover">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" /><path d="M8 15h.01" /><path d="M8 19h.01" /><path d="M12 17h.01" /><path d="M12 21h.01" /><path d="M16 15h.01" /><path d="M16 19h.01" /></svg>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold">Mountain weather</h3>
+        <p class="mt-1.5 text-sm text-muted-foreground">Burnaby Mountain-specific forecasts, not downtown Vancouver.</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-card p-6 card-lift hover:card-lift-hover">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></svg>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold">Smart routing</h3>
+        <p class="mt-1.5 text-sm text-muted-foreground">Powered by OpenRouteService — actual driving times, not optimistic ones.</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-card p-6 card-lift hover:card-lift-hover">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /><path d="M20 2v4" /><path d="M22 4h-4" /><circle cx="4" cy="20" r="2" /></svg>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold">Eco-Score &amp; points</h3>
+        <p class="mt-1.5 text-sm text-muted-foreground">Earn points for every shared trip. Redeem for parking and campus perks (soon).</p>
+      </div>
+      <div class="rounded-2xl border border-border bg-card p-6 card-lift hover:card-lift-hover">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /></svg>
+        </div>
+        <h3 class="mt-4 text-lg font-semibold">Built for SFU</h3>
+        <p class="mt-1.5 text-sm text-muted-foreground">From Metrotown to Convocation Mall — every trip is a campus trip.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ================= HEAD ================= -->
+<head th:fragment="head(pageTitle, pageDesc)">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title th:text="${pageTitle}">CommuteMate</title>
+  <meta name="description" th:attr="content=${pageDesc}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/commutemate.css}" />
+  <script defer="defer" th:src="@{/js/commutemate.js}"></script>
+</head>
+
+<body>
+
+<!-- ================= NAV (ported verbatim from site-nav.tsx) ================= -->
+<header th:fragment="nav(active)" class="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <a th:href="@{/}" class="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
+        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /></svg>
+      </span>
+      CommuteMate
+    </a>
+
+    <nav class="hidden items-center gap-1 md:flex" th:if="${authenticated}">
+      <a th:href="@{/dashboard/driver}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+         th:classappend="${active == 'drive'} ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'">Drive</a>
+      <a th:href="@{/dashboard/rider}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+         th:classappend="${active == 'ride'} ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'">Ride</a>
+      <a th:href="@{/rides/available}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+         th:classappend="${active == 'available'} ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'">Available rides</a>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <th:block th:if="${authenticated}">
+        <div class="hidden text-right sm:block">
+          <p class="text-sm font-medium leading-tight" th:text="${profile.fullName}">Alex Chen</p>
+          <p class="text-xs text-muted-foreground" th:text="${profile.email}">alex@sfu.ca</p>
+        </div>
+        <a th:href="@{/}"
+           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-xs hover:bg-accent hover:text-accent-foreground h-8 px-3">
+          <svg class="mr-1.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg> Log out
+        </a>
+      </th:block>
+      <th:block th:unless="${authenticated}">
+        <a th:href="@{/auth}"
+           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-xs hover:bg-accent hover:text-accent-foreground h-8 px-3">Log in</a>
+        <a th:href="@{/auth(mode='signup')}"
+           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-xs bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3">Sign up</a>
+      </th:block>
+    </div>
+  </div>
+</header>
+
+<!-- ================= FOOTER (from index.tsx) ================= -->
+<footer th:fragment="footer" class="border-t border-border bg-card/40">
+  <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-8 text-sm text-muted-foreground md:flex-row">
+    <p>© 2026 CommuteMate · A student project for SFU commuters.</p>
+    <p>Not affiliated with Simon Fraser University or TransLink.</p>
+  </div>
+</footer>
+
+</body>
+</html>

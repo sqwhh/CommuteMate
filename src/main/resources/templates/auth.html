@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign in — CommuteMate',
+  'Sign in or create your CommuteMate account with your SFU email.')}"></head>
+<body>
+<div class="min-h-screen bg-mountain-gradient">
+  <div class="mx-auto flex max-w-md flex-col px-6 py-10">
+    <a th:href="@{/}" class="mb-8 inline-flex items-center gap-2 text-sm font-semibold">
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
+        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /></svg>
+      </span>
+      CommuteMate
+    </a>
+
+    <div class="card-lift rounded-2xl border border-border bg-card p-8">
+      <form method="post" th:action="@{/auth}" data-auth-form="data-auth-form">
+        <input type="hidden" name="mode" th:value="${mode}" />
+        <input type="hidden" name="role" value="both" />
+
+        <div class="mb-6 grid grid-cols-2 rounded-lg bg-secondary p-1">
+          <button type="button" data-mode="login" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                  th:classappend="${mode == 'login'} ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'">Log in</button>
+          <button type="button" data-mode="signup" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                  th:classappend="${mode == 'signup'} ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'">Sign up</button>
+        </div>
+
+        <h1 class="font-display text-2xl font-semibold tracking-tight" data-auth-title="data-auth-title"
+            th:text="${mode == 'signup'} ? 'Create your account' : 'Welcome back'">Welcome back</h1>
+        <p class="mt-1.5 text-sm text-muted-foreground" data-auth-subtitle="data-auth-subtitle"
+           th:text="${mode == 'signup'} ? 'Verified SFU students only. Takes about a minute.' : 'Log in to see today\'s rides up the mountain.'">Log in to see today's rides up the mountain.</p>
+
+        <div class="mt-6 space-y-4">
+          <div class="space-y-1.5" data-signup-only="data-signup-only" style="display:none;">
+            <label for="name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Full name</label>
+            <input id="name" name="name" placeholder="Alex Chen" th:value="${name}"
+                   class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">SFU email</label>
+            <input id="email" name="email" type="email" placeholder="you@sfu.ca" th:value="${email}" required="required"
+                   class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
+            <input id="password" name="password" type="password" placeholder="At least 6 characters" required="required"
+                   class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
+          </div>
+
+          <div class="space-y-1.5" data-signup-only="data-signup-only" style="display:none;">
+            <span class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">I want to</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-role="driver"
+                      class="rounded-lg border px-3 py-2.5 text-sm font-medium capitalize transition-colors border-border bg-background hover:bg-secondary">driver</button>
+              <button type="button" data-role="rider"
+                      class="rounded-lg border px-3 py-2.5 text-sm font-medium capitalize transition-colors border-border bg-background hover:bg-secondary">rider</button>
+              <button type="button" data-role="both"
+                      class="rounded-lg border px-3 py-2.5 text-sm font-medium capitalize transition-colors border-primary bg-primary/10 text-primary">Both</button>
+            </div>
+          </div>
+
+          <p class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" th:if="${error}" th:text="${error}">Error message</p>
+
+          <button type="submit" data-auth-submit="data-auth-submit"
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-8 w-full"
+                  th:text="${mode == 'signup'} ? 'Create account' : 'Log in'">Log in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>
