@@ -34,3 +34,5 @@ build/
 
 ## Mac files ###
 .DS_Store
+
+/data
