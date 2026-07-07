@@ -3,6 +3,8 @@ package project.group1.commutemate.trips.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import project.group1.commutemate.trips.dto.CreateTripRequest;
 import project.group1.commutemate.trips.service.TripService;
 /**
@@ -78,21 +80,80 @@ public class TripController {
         model.addAttribute("trip", tripService.getTrip(id));
         return "trips/trip-details";
     }
+
+    /**
+     * Joins a trip by id and riderId.
+     */
+    @PostMapping("/{id}/join")
+    public String joinTrip(
+            @PathVariable Long id,
+            @RequestParam String riderId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tripService.joinTrip(id, riderId);
+            redirectAttributes.addFlashAttribute("successMessage", "You joined this trip successfully.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
+        return "redirect:/trips/" + id;
+    }
     
     /**
      * Confirms a trip.
      */
     @PostMapping("/{id}/confirm")
-    public String confirmTrip(@PathVariable Long id){
-        tripService.confirmTrip(id);
+    public String confirmTrip(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tripService.confirmTrip(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Trip confirmed.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
         return "redirect:/trips/" + id;
     }
+
+    /**
+     * Completes a trip.
+     */
+   @PostMapping("/{id}/complete")
+    public String completeTrip(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tripService.completeTrip(id);
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Trip completed."
+            );
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
+        return "redirect:/trips/" + id;
+    }
+
     /**
      * Cancels a trip.
      */
     @PostMapping("/{id}/cancel")
-    public String cancelTrip(@PathVariable Long id){
-        tripService.cancelTrip(id);
+    public String cancelTrip(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tripService.cancelTrip(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Trip cancelled.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+
         return "redirect:/trips/" + id;
     }
 }

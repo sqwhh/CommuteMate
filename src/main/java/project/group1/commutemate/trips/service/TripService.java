@@ -5,6 +5,9 @@ import project.group1.commutemate.trips.dto.CreateTripRequest;
 import project.group1.commutemate.trips.model.Trip;
 import project.group1.commutemate.trips.model.Trip.TripStatus;
 import project.group1.commutemate.trips.repository.TripRepository;
+import java.time.format.DateTimeParseException;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -38,6 +41,7 @@ public class TripService {
 
         Trip trip = new Trip(
                 null,
+                request.getDriverId().trim(),
                 request.getStartLocation(),
                 request.getDestination(),
                 request.getDepartureTime(),
@@ -48,8 +52,67 @@ public class TripService {
         return tripRepository.save(trip);
     }
 
-    // validator
+    // validets if it's possible to join a trip
+    public void joinTrip(Long id, String riderId) {
+        Trip trip = getTrip(id);
+        validateJoinTripRequest(trip, riderId);
+
+        trip.addRider(riderId.trim());
+        trip.setStatus(TripStatus.CONFIRMED);
+    }
+
+    // completes a trip by id
+    public void completeTrip(Long id) {
+        Trip trip = getTrip(id);
+
+        if (trip.getStatus() == TripStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cancelled trips cannot be completed.");
+        }
+
+        if (trip.getStatus() == TripStatus.COMPLETED) {
+            throw new IllegalArgumentException("Trip is already completed.");
+        }
+
+        if (trip.getStatus() != TripStatus.CONFIRMED) {
+            throw new IllegalArgumentException("Only confirmed trips can be completed.");
+        }
+
+        if (trip.getRiderIds().isEmpty()) {
+            throw new IllegalArgumentException("Trip must have at least one rider before it can be completed.");
+        }
+
+        trip.setStatus(TripStatus.COMPLETED);
+    }
+
+    // updates a trip to confirmed
+    public void confirmTrip(Long id) {
+        Trip trip = getTrip(id);
+        if (trip.getStatus() == TripStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cancelled trips cannot be confirmed.");
+        }
+        if (trip.getStatus() == TripStatus.COMPLETED) {
+            throw new IllegalArgumentException("Completed trips cannot be confirmed.");
+        }
+
+        trip.setStatus(TripStatus.CONFIRMED);
+    }
+
+    // updates a trip to cancelled 
+    public void cancelTrip(Long id) {
+        Trip trip = getTrip(id);
+        if (trip.getStatus() == TripStatus.COMPLETED) {
+            throw new IllegalArgumentException("Completed trips cannot be cancelled.");
+        }
+        trip.setStatus(TripStatus.CANCELLED);
+    }
+
+    // validators
+    // validates if it's possble to create a trip
     private void validateCreateTripRequest(CreateTripRequest request) {
+        if (request.getDriverId() == null || request.getDriverId().isBlank()) {
+            throw new IllegalArgumentException("Driver ID is required.");
+        }
+
         if (request.getStartLocation() == null || request.getStartLocation().isBlank()) {
             throw new IllegalArgumentException("Start location is required.");
         }
@@ -62,20 +125,50 @@ public class TripService {
             throw new IllegalArgumentException("Departure time is required.");
         }
 
+        validateDepartureTime(request.getDepartureTime());
+
         if (request.getSeatsAvailable() < 1) {
             throw new IllegalArgumentException("Seats available must be at least 1.");
         }
     }
 
-    // updates a trip to confirmed
-    public void confirmTrip(Long id){
-        Trip trip = getTrip(id);
-        trip.setStatus(TripStatus.CONFIRMED);
+    private void validateDepartureTime(String departureTime) {
+        try {
+            LocalDateTime parsedDepartureTime = LocalDateTime.parse(departureTime);
+
+            if (parsedDepartureTime.isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("Departure time must be in the future.");
+            }
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Departure time format is invalid.");
+        }
     }
 
-    // updates a trip to cancelled 
-    public void cancelTrip(Long id){
-        Trip trip = getTrip(id);
-        trip.setStatus(TripStatus.CANCELLED);
+    private void validateJoinTripRequest(Trip trip, String riderId) {
+        if (riderId == null || riderId.isBlank()) {
+            throw new IllegalArgumentException("Rider ID is required.");
+        }
+
+        String cleanRiderId = riderId.trim();
+
+        if (trip.getStatus() == TripStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cancelled trips cannot be joined.");
+        }
+
+        if (trip.getStatus() == TripStatus.COMPLETED) {
+            throw new IllegalArgumentException("Completed trips cannot be joined.");
+        }
+
+        if (trip.getSeatsAvailable() < 1) {
+            throw new IllegalArgumentException("No seats available.");
+        }
+
+        if (cleanRiderId.equals(trip.getDriverId())) {
+            throw new IllegalArgumentException("Driver cannot join their own trip.");
+        }
+
+        if (trip.hasRider(cleanRiderId)) {
+            throw new IllegalArgumentException("This rider already joined the trip.");
+        }
     }
 }

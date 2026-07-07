@@ -6,9 +6,17 @@
 <body>
     <h1>Trip Details</h1>
 
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+    <p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
+
     <p>
         <strong>ID:</strong>
         <span th:text="${trip.id}"></span>
+    </p>
+
+    <p>
+        <strong>Driver ID:</strong>
+        <span th:text="${trip.driverId}"></span>
     </p>
 
     <p>
@@ -36,16 +44,57 @@
         <span th:text="${trip.status}"></span>
     </p>
 
-    <form th:action="@{/trips/{id}/confirm(id=${trip.id})}" method="post">
+    <p>
+        <strong>Riders:</strong>
+        <span th:if="${#lists.isEmpty(trip.riderIds)}">No riders yet</span>
+        <span th:if="${!#lists.isEmpty(trip.riderIds)}" th:text="${trip.riderIds}"></span>
+    </p>
+
+    <hr>
+
+    <h2>Join this trip</h2>
+    <form th:if="${trip.status.name() != 'COMPLETED' and trip.status.name() != 'CANCELLED' and trip.seatsAvailable > 0}"
+          th:action="@{/trips/{id}/join(id=${trip.id})}"
+          method="post">
+        <label for="riderId">Rider ID:</label>
+        <input type="text" id="riderId" name="riderId" placeholder="Example: rider1" required>
+        <button type="submit">Join Trip</button>
+    </form>
+
+    <p th:if="${trip.status.name() == 'COMPLETED'}">This trip is already completed.</p>
+    <p th:if="${trip.status.name() == 'CANCELLED'}">This trip is cancelled.</p>
+    <p th:if="${trip.status.name() != 'COMPLETED' and trip.status.name() != 'CANCELLED' and trip.seatsAvailable == 0}">
+        No seats available.
+    </p>
+
+    <hr>
+
+    <h2>Driver actions</h2>
+    <form th:if="${trip.status.name() == 'CREATED'}"
+          th:action="@{/trips/{id}/confirm(id=${trip.id})}"
+          method="post">
         <button type="submit">Confirm Trip</button>
     </form>
 
-    <br>
+    <br th:if="${trip.status.name() == 'CREATED'}">
 
-    <form th:action="@{/trips/{id}/cancel(id=${trip.id})}" method="post">
+    <form th:if="${trip.status.name() == 'CONFIRMED'}"
+          th:action="@{/trips/{id}/complete(id=${trip.id})}"
+          method="post">
+        <button type="submit">Complete Trip</button>
+    </form>
+
+    <br th:if="${trip.status.name() == 'CONFIRMED'}">
+
+    <form th:if="${trip.status.name() != 'COMPLETED' and trip.status.name() != 'CANCELLED'}"
+          th:action="@{/trips/{id}/cancel(id=${trip.id})}"
+          method="post">
         <button type="submit">Cancel Trip</button>
     </form>
+
     <br>
-    <a href="/trips/my">Back to My Trips</a>
+    <p>
+        <a href="/trips/my">Back to Trips</a>
+    </p>
 </body>
 </html>

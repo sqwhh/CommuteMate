@@ -5,7 +5,16 @@
 </head>
 <body>
     <h1>Create New Trip</h1>
+
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+    <p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
+
     <form th:action="@{/trips}" th:object="${tripRequest}" method="post">
+        <div>
+            <label for="driverId">Driver ID:</label>
+            <input type="text" id="driverId" th:field="*{driverId}" placeholder="Example: driver1" required>
+        </div>
+        
         <div>
             <label for="startLocation">Start Location:</label>
             <input type="text" id="startLocation" th:field="*{startLocation}" required>

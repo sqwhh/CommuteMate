@@ -36,6 +36,7 @@ public class TripRepository {
     public Trip save(Trip trip){
         Trip savedTrip = new Trip(
                 nextId,
+                trip.getDriverId(),
                 trip.getStartLocation(),
                 trip.getDestination(),
                 trip.getDepartureTime(),

@@ -6,10 +6,19 @@ package project.group1.commutemate.trips.dto;
  * Data transfer object for the create trip form.
  */
 public class CreateTripRequest {
+    private String driverId;
     private String startLocation;
     private String destination;
     private String departureTime;
     private int seatsAvailable;
+
+    public String getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(String driverId) {
+        this.driverId = driverId;
+    }
 
     public String getStartLocation() {
         return startLocation;

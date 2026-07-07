@@ -2,14 +2,19 @@ package project.group1.commutemate.trips.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Trip{
     private Long id; // unique
+    private String driverId;
     private String startLocation;
     private String destination;
     private String departureTime;
     private int seatsAvailable;
     private TripStatus status;
+    private final List<String> riderIds = new ArrayList<>();
 
     /**
      * Empty constructor for frameworks
@@ -21,6 +26,7 @@ public class Trip{
      */
     public Trip(
             Long id,
+            String driverId,
             String startLocation,
             String destination,
             String departureTime,
@@ -28,6 +34,7 @@ public class Trip{
             TripStatus status
         ){
         this.id = id;
+        this.driverId = driverId;
         this.startLocation = startLocation;
         this.destination = destination;
         this.departureTime = departureTime;
@@ -37,6 +44,10 @@ public class Trip{
 
     public Long getId(){
         return id;
+    }
+
+    public String getDriverId() {
+        return driverId;
     }
 
     public String getStartLocation(){
@@ -71,6 +82,19 @@ public class Trip{
 
     public void setStatus(TripStatus status) {
         this.status = status;
+    }
+
+    public List<String> getRiderIds() {
+        return Collections.unmodifiableList(riderIds);
+    }
+
+    public boolean hasRider(String riderId) {
+        return riderIds.contains(riderId);
+    }
+
+    public void addRider(String riderId) {
+        riderIds.add(riderId);
+        seatsAvailable--;
     }
 
     /**
