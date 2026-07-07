@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - CommuteMate</title>
+    <style>
+        body { font-family: -apple-system, "Segoe UI", sans-serif; background: linear-gradient(135deg, #6e8efb, #a777e3); min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; }
+        .card { background: white; padding: 2.5rem; border-radius: 16px; width: 340px; }
+        h1 { font-size: 1.5rem; margin-top: 0; }
+        label { display: block; margin-top: 1rem; font-weight: 600; font-size: 0.9rem; }
+        input[type=text], input[type=email], input[type=password] { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        .error { color: #c0392b; font-size: 0.8rem; margin: 0.25rem 0 0; }
+        button { margin-top: 1.5rem; width: 100%; padding: 0.6rem; background: #6e8efb; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+        .role-options label { display: inline; font-weight: normal; margin-right: 1rem; }
+        a { color: #6e8efb; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Create your CommuteMate account</h1>
+
+    <form th:action="@{/register}" th:object="${registerRequest}" method="post">
+        <label>Full Name</label>
+        <input type="text" th:field="*{fullName}" />
+        <p class="error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+
+        <label>SFU Email</label>
+        <input type="email" th:field="*{email}" placeholder="you@sfu.ca" />
+        <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+
+        <label>Password</label>
+        <input type="password" th:field="*{password}" />
+        <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
+        <label>Confirm Password</label>
+        <input type="password" th:field="*{confirmPassword}" />
+        <p class="error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
+
+        <label>I am a:</label>
+        <div class="role-options">
+            <label><input type="radio" th:field="*{role}" value="RIDER" /> Rider</label>
+            <label><input type="radio" th:field="*{role}" value="DRIVER" /> Driver</label>
+        </div>
+        <p class="error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></p>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a th:href="@{/login}">Log in</a></p>
+</div>
+</body>
+</html>
