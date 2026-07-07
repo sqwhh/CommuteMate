@@ -1,9 +1,15 @@
 package project.group1.commutemate.controller;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import project.group1.commutemate.User.CurrentUserService;
+import project.group1.commutemate.model.Profile;
+import project.group1.commutemate.model.Role;
 
 /**
  * Renders the sign-in / sign-up page (Epic 1).
@@ -15,11 +21,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class AuthController {
 
+    private final CurrentUserService currentUserService;
+
+    public AuthController(CurrentUserService currentUserService) {
+        this.currentUserService = currentUserService;
+    }
+
     @GetMapping("/auth")
     public String authPage(@RequestParam(defaultValue = "login") String mode,
                            @RequestParam(required = false) String error,
                            @RequestParam(required = false) String registered,
                            Model model) {
+        // Already signed in — go to the member's own dashboard instead
+        Optional<Profile> profile = currentUserService.currentProfile();
+        if (profile.isPresent()) {
+            return profile.get().getRole() == Role.DRIVER
+                    ? "redirect:/dashboard/driver"
+                    : "redirect:/dashboard/rider";
+        }
+
         model.addAttribute("authenticated", false);
         model.addAttribute("mode", "signup".equals(mode) ? "signup" : "login");
         if (error != null) {

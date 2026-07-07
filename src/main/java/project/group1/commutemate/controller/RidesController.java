@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import project.group1.commutemate.User.UserRepository;
+import project.group1.commutemate.User.CurrentUserService;
 import project.group1.commutemate.model.Profile;
 import project.group1.commutemate.service.RideService;
 
@@ -25,8 +25,8 @@ public class RidesController extends AuthenticatedController {
 
     private final RideService rideService;
 
-    public RidesController(RideService rideService, UserRepository userRepository) {
-        super(userRepository);
+    public RidesController(RideService rideService, CurrentUserService currentUserService) {
+        super(currentUserService);
         this.rideService = rideService;
     }
 

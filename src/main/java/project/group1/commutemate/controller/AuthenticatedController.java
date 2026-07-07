@@ -1,10 +1,8 @@
 package project.group1.commutemate.controller;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import project.group1.commutemate.User.User;
-import project.group1.commutemate.User.UserRepository;
+import project.group1.commutemate.User.CurrentUserService;
 import project.group1.commutemate.model.Profile;
 
 /**
@@ -16,10 +14,10 @@ import project.group1.commutemate.model.Profile;
  */
 public abstract class AuthenticatedController {
 
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
-    protected AuthenticatedController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    protected AuthenticatedController(CurrentUserService currentUserService) {
+        this.currentUserService = currentUserService;
     }
 
     @ModelAttribute("authenticated")
@@ -28,10 +26,8 @@ public abstract class AuthenticatedController {
     }
 
     @ModelAttribute("profile")
-    public Profile currentProfile(Authentication authentication) {
-        User user = userRepository.findByEmailIgnoreCase(authentication.getName())
-                .orElseThrow(() -> new IllegalStateException(
-                        "Authenticated user not found: " + authentication.getName()));
-        return new Profile(user.getEmail(), user.getFullName(), user.getRole(), 0, 0);
+    public Profile currentProfile() {
+        return currentUserService.currentProfile()
+                .orElseThrow(() -> new IllegalStateException("No signed-in member on a protected page"));
     }
 }

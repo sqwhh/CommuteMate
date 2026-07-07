@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import project.group1.commutemate.User.UserRepository;
+import project.group1.commutemate.User.CurrentUserService;
 import project.group1.commutemate.model.Ride;
 import project.group1.commutemate.service.RideService;
 
@@ -18,8 +18,8 @@ public class DashboardController extends AuthenticatedController {
 
     private final RideService rideService;
 
-    public DashboardController(RideService rideService, UserRepository userRepository) {
-        super(userRepository);
+    public DashboardController(RideService rideService, CurrentUserService currentUserService) {
+        super(currentUserService);
         this.rideService = rideService;
     }
 
