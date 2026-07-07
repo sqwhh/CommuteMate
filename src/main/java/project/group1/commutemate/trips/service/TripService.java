@@ -6,6 +6,7 @@ import project.group1.commutemate.trips.model.Trip;
 import project.group1.commutemate.trips.model.Trip.TripStatus;
 import project.group1.commutemate.trips.repository.TripRepository;
 import java.time.format.DateTimeParseException;
+import project.group1.commutemate.RewardService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,10 +20,12 @@ import java.util.List;
 @Service
 public class TripService {
     private final TripRepository tripRepository;
+    private final RewardService rewardService; 
 
     // constructor enjection
-    public TripService(TripRepository tripRepository){
+    public TripService(TripRepository tripRepository, RewardService rewardService){
         this.tripRepository = tripRepository;
+        this.rewardService = rewardService;
     }
 
     // returns all trips
@@ -83,7 +86,8 @@ public class TripService {
         }
 
         trip.setStatus(TripStatus.COMPLETED);
-    }
+        rewardService.awardPointsForCompletedRide(trip.getDriverId());
+    }           
 
     // updates a trip to confirmed
     public void confirmTrip(Long id, String currentUser) {
