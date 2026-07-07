@@ -86,6 +86,7 @@
     var search = document.querySelector("[data-rides-search]");
     var chips = document.querySelectorAll("[data-sort]");
     var count = document.querySelector("[data-rides-count]");
+    var empty = document.querySelector("[data-rides-empty]");
     var cards = Array.prototype.slice.call(grid.querySelectorAll("[data-ride]"));
 
     // Initial sort = the chip the server rendered as active (bg-primary)
@@ -118,6 +119,7 @@
       });
 
       if (count) count.textContent = visible;
+      if (empty) empty.style.display = visible === 0 ? "" : "none";
     }
 
     if (search) search.addEventListener("input", apply);

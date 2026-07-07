@@ -105,6 +105,12 @@
         </div>
       </article>
     </div>
+
+    <div data-rides-empty="data-rides-empty" class="mt-6 rounded-2xl border border-border bg-card p-10 text-center"
+         th:style="${#lists.isEmpty(rides)} ? '' : 'display:none'">
+      <p class="font-medium">No rides are currently available.</p>
+      <p class="mt-1 text-sm text-muted-foreground">Try a different search, or check back closer to commute time.</p>
+    </div>
   </main>
 </div>
 </body>
