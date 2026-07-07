@@ -62,8 +62,9 @@ public class TripService {
     }
 
     // completes a trip by id
-    public void completeTrip(Long id) {
+    public void completeTrip(Long id, String currentUser) {
         Trip trip = getTrip(id);
+        validateDriverAction(trip, currentUser);
 
         if (trip.getStatus() == TripStatus.CANCELLED) {
             throw new IllegalArgumentException("Cancelled trips cannot be completed.");
@@ -85,25 +86,49 @@ public class TripService {
     }
 
     // updates a trip to confirmed
-    public void confirmTrip(Long id) {
+    public void confirmTrip(Long id, String currentUser) {
         Trip trip = getTrip(id);
+        validateDriverAction(trip, currentUser);
+
         if (trip.getStatus() == TripStatus.CANCELLED) {
             throw new IllegalArgumentException("Cancelled trips cannot be confirmed.");
         }
+
         if (trip.getStatus() == TripStatus.COMPLETED) {
             throw new IllegalArgumentException("Completed trips cannot be confirmed.");
+        }
+
+        if (trip.getRiderIds().isEmpty()) {
+            throw new IllegalArgumentException("Trip must have at least one rider before it can be confirmed.");
         }
 
         trip.setStatus(TripStatus.CONFIRMED);
     }
 
     // updates a trip to cancelled 
-    public void cancelTrip(Long id) {
+    public void cancelTrip(Long id, String currentUser) {
         Trip trip = getTrip(id);
+        validateDriverAction(trip, currentUser);
+
         if (trip.getStatus() == TripStatus.COMPLETED) {
             throw new IllegalArgumentException("Completed trips cannot be cancelled.");
         }
+
         trip.setStatus(TripStatus.CANCELLED);
+    }
+
+    private void validateDriverAction(Trip trip, String currentUser) {
+        if (currentUser == null || !currentUser.equals(trip.getDriverId())) {
+            throw new IllegalArgumentException("Only the driver can do this action.");
+        }
+    }
+
+    public List<Trip> getTripsForUser(String userId) {
+        return tripRepository.findAll()
+                .stream()
+                .filter(trip -> trip.getDriverId().equals(userId)
+                        || trip.getRiderIds().contains(userId))
+                .toList();
     }
 
     // validators

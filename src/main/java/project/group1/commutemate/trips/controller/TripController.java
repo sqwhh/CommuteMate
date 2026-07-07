@@ -1,5 +1,6 @@
 package project.group1.commutemate.trips.controller;
 
+import java.security.Principal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,9 @@ public class TripController {
      * @return page that displays the user's trips
      */
     @GetMapping("/my")
-    public String showMyTrips(Model model){
-        model.addAttribute("trips", tripService.getAllTrips());
+    public String showMyTrips(Principal principal, Model model){
+        model.addAttribute("trips", tripService.getTripsForUser(principal.getName()));
+        model.addAttribute("pageTitle", "My Trips");
         return "trips/my-trips";
     }
 
@@ -56,13 +58,16 @@ public class TripController {
      * @return redirect to a just creadeted trip
      */
     @PostMapping
-    public String createTrip(@ModelAttribute CreateTripRequest tripRequest, Model model){
-        try{
+    public String createTrip(
+            @ModelAttribute CreateTripRequest tripRequest,
+            Principal principal,
+            Model model
+    ) {
+        try {
+            tripRequest.setDriverId(principal.getName());
             tripService.createTrip(tripRequest);
             return "redirect:/trips/my";
-        } 
-
-        catch (IllegalArgumentException exception){
+        } catch (IllegalArgumentException exception) {
             model.addAttribute("tripRequest", tripRequest);
             model.addAttribute("errorMessage", exception.getMessage());
             return "trips/new-trip";
@@ -76,10 +81,16 @@ public class TripController {
      * @return the trip detail page
      */
     @GetMapping("/{id}")
-    public String showTripDetails(@PathVariable Long id, Model model){
+    public String showTripDetails(
+            @PathVariable Long id,
+            Principal principal,
+            Model model
+    ) {
         model.addAttribute("trip", tripService.getTrip(id));
+        model.addAttribute("currentUser", principal.getName());
         return "trips/trip-details";
     }
+    
 
     /**
      * Joins a trip by id and riderId.
@@ -87,11 +98,11 @@ public class TripController {
     @PostMapping("/{id}/join")
     public String joinTrip(
             @PathVariable Long id,
-            @RequestParam String riderId,
+            Principal principal,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            tripService.joinTrip(id, riderId);
+            tripService.joinTrip(id, principal.getName());
             redirectAttributes.addFlashAttribute("successMessage", "You joined this trip successfully.");
         } catch (IllegalArgumentException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
@@ -106,10 +117,11 @@ public class TripController {
     @PostMapping("/{id}/confirm")
     public String confirmTrip(
             @PathVariable Long id,
+            Principal principal,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            tripService.confirmTrip(id);
+            tripService.confirmTrip(id, principal.getName());
             redirectAttributes.addFlashAttribute("successMessage", "Trip confirmed.");
         } catch (IllegalArgumentException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
@@ -121,17 +133,15 @@ public class TripController {
     /**
      * Completes a trip.
      */
-   @PostMapping("/{id}/complete")
+    @PostMapping("/{id}/complete")
     public String completeTrip(
             @PathVariable Long id,
+            Principal principal,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            tripService.completeTrip(id);
-            redirectAttributes.addFlashAttribute(
-                    "successMessage",
-                    "Trip completed."
-            );
+            tripService.completeTrip(id, principal.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Trip completed.");
         } catch (IllegalArgumentException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
         }
@@ -145,10 +155,11 @@ public class TripController {
     @PostMapping("/{id}/cancel")
     public String cancelTrip(
             @PathVariable Long id,
+            Principal principal,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            tripService.cancelTrip(id);
+            tripService.cancelTrip(id, principal.getName());
             redirectAttributes.addFlashAttribute("successMessage", "Trip cancelled.");
         } catch (IllegalArgumentException exception) {
             redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());

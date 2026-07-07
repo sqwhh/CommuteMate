@@ -11,11 +11,6 @@
 
     <form th:action="@{/trips}" th:object="${tripRequest}" method="post">
         <div>
-            <label for="driverId">Driver ID:</label>
-            <input type="text" id="driverId" th:field="*{driverId}" placeholder="Example: driver1" required>
-        </div>
-        
-        <div>
             <label for="startLocation">Start Location:</label>
             <input type="text" id="startLocation" th:field="*{startLocation}" required>
         </div>
