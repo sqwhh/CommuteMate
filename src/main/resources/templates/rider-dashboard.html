@@ -3,15 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <title>Rider Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, "Segoe UI", sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 420px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        a {
+            text-decoration: none;
+            background: #6e8efb;
+            color: white;
+            padding: 0.9rem;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        a:hover {
+            background: #5d7de8;
+        }
+    </style>
 </head>
 <body>
-    <h1>Rider Dashboard</h1>
+    <main class="card">
+        <h1>Rider Dashboard</h1>
+        <p>Welcome to your rider dashboard.</p>
 
-    <p>Welcome to your rider dashboard.</p>
-
-    <ul>
-        <li><a href="/trips/my">View Trips</a></li>
-        <li><a href="/trips/new">Create New Trip</a></li>
-    </ul>
+        <div class="actions">
+            <a href="/trips/my">View Available Rides</a>
+            <a href="/trips/new">Create a Ride</a>
+        </div>
+    </main>
 </body>
 </html>
