@@ -2,14 +2,17 @@ package project.group1.commutemate.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
@@ -21,35 +24,62 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /** After login, land on the dashboard that matches the member's role. */
     @Bean
     public AuthenticationSuccessHandler successHandler() {
-        return (request, response, authentication) -> {
-            boolean isDriver = authentication.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .anyMatch(a -> a.equals("ROLE_DRIVER"));
+        return (request, response, authentication) ->
+                response.sendRedirect(hasRole(authentication, "ROLE_DRIVER")
+                        ? "/dashboard/driver"
+                        : "/dashboard/rider");
+    }
 
-            response.sendRedirect(isDriver ? "/driver/dashboard" : "/rider/dashboard");
+    /**
+     * A driver-only member hitting a rider page (or vice versa) is bounced to
+     * their own dashboard instead of seeing a bare 403 page.
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, exception) -> {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            response.sendRedirect(auth != null && hasRole(auth, "ROLE_DRIVER")
+                    ? "/dashboard/driver"
+                    : "/dashboard/rider");
         };
+    }
+
+    private static boolean hasRole(Authentication authentication, String role) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role::equals);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/auth", "/register", "/login",
+                        "/css/**", "/js/**", "/images/**", "/error").permitAll()
+                // Driver features: BOTH members qualify too
+                .requestMatchers("/dashboard/driver", "/rides/create", "/ride-request/new")
+                        .hasAnyRole("DRIVER", "BOTH")
+                // Rider features (incl. legacy redirect paths)
+                .requestMatchers("/dashboard/rider", "/rider/dashboard", "/rides/available", "/rides")
+                        .hasAnyRole("RIDER", "BOTH")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login")
+                .loginPage("/auth")
+                .loginProcessingUrl("/login")
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .successHandler(successHandler())
-                .failureUrl("/login?error")
+                .failureUrl("/auth?mode=login&error")
                 .permitAll()
             )
+            .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler()))
             .logout(logout -> logout
                 .logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/logout"))
-                .logoutSuccessUrl("/?loggedout")
+                .logoutSuccessUrl("/")
                 .permitAll()
             );
 

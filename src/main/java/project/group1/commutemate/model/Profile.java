@@ -24,6 +24,16 @@ public class Profile {
         this.ecoScore = ecoScore;
     }
 
+    /** True when the member may use driver features (role DRIVER or BOTH). */
+    public boolean isDriverCapable() {
+        return role != Role.RIDER;
+    }
+
+    /** True when the member may use rider features (role RIDER or BOTH). */
+    public boolean isRiderCapable() {
+        return role != Role.DRIVER;
+    }
+
     /** Initials shown in avatar bubbles, e.g. "Alex Chen" -> "AC". */
     public String getInitials() {
         if (fullName == null || fullName.isBlank()) {

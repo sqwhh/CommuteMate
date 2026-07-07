@@ -1,18 +1,26 @@
 package project.group1.commutemate.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import project.group1.commutemate.User.User;
+import project.group1.commutemate.User.UserRepository;
 import project.group1.commutemate.model.Profile;
-import project.group1.commutemate.model.Role;
 
 /**
- * Base class for pages that live behind the (future) login wall.
+ * Base class for pages behind the login wall (Epic 1).
  *
- * <p>Real authentication is Epic 1 and not built yet, so for now every
- * signed-in page shares one demo profile. Exposing it as a {@code @ModelAttribute}
- * means the shared navigation fragment can always render the member's name.</p>
+ * <p>Exposes the signed-in member as a {@code @ModelAttribute} so the shared
+ * navigation fragment can render their name, email, and role-appropriate tabs.
+ * Points and eco-score stay at their starting values until Epic 4 lands.</p>
  */
 public abstract class AuthenticatedController {
+
+    private final UserRepository userRepository;
+
+    protected AuthenticatedController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @ModelAttribute("authenticated")
     public boolean authenticated() {
@@ -20,7 +28,10 @@ public abstract class AuthenticatedController {
     }
 
     @ModelAttribute("profile")
-    public Profile currentProfile() {
-        return new Profile("alex_chen@sfu.ca", "Alex Chen", Role.BOTH, 240, 82);
+    public Profile currentProfile(Authentication authentication) {
+        User user = userRepository.findByEmailIgnoreCase(authentication.getName())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Authenticated user not found: " + authentication.getName()));
+        return new Profile(user.getEmail(), user.getFullName(), user.getRole(), 0, 0);
     }
 }

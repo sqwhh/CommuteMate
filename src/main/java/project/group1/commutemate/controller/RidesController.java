@@ -8,8 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import project.group1.commutemate.User.UserRepository;
+import project.group1.commutemate.model.Profile;
 import project.group1.commutemate.service.RideService;
 
 /**
@@ -22,7 +25,8 @@ public class RidesController extends AuthenticatedController {
 
     private final RideService rideService;
 
-    public RidesController(RideService rideService) {
+    public RidesController(RideService rideService, UserRepository userRepository) {
+        super(userRepository);
         this.rideService = rideService;
     }
 
@@ -55,7 +59,8 @@ public class RidesController extends AuthenticatedController {
     }
 
     @PostMapping("/rides/create")
-    public String create(@RequestParam String from,
+    public String create(@ModelAttribute("profile") Profile profile,
+                         @RequestParam String from,
                          @RequestParam String to,
                          @RequestParam String date,
                          @RequestParam String time,
@@ -64,8 +69,7 @@ public class RidesController extends AuthenticatedController {
                          @RequestParam(required = false) String notes) {
 
         LocalDateTime departAt = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
-        // The current demo driver; real driver identity arrives with Epic 1.
-        rideService.create("Alex Chen", from, to, departAt, seats, price, notes);
+        rideService.create(profile.getFullName(), from, to, departAt, seats, price, notes);
         return "redirect:/dashboard/driver";
     }
 }

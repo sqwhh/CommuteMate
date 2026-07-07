@@ -13,7 +13,7 @@
     </a>
 
     <div class="card-lift rounded-2xl border border-border bg-card p-8">
-      <form method="post" th:action="@{/auth}" data-auth-form="data-auth-form">
+      <form method="post" th:action="${mode == 'signup'} ? @{/register} : @{/login}" data-auth-form="data-auth-form">
         <input type="hidden" name="mode" th:value="${mode}" />
         <input type="hidden" name="role" value="both" />
 
@@ -32,7 +32,7 @@
         <div class="mt-6 space-y-4">
           <div class="space-y-1.5" data-signup-only="data-signup-only" style="display:none;">
             <label for="name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Full name</label>
-            <input id="name" name="name" placeholder="Alex Chen" th:value="${name}"
+            <input id="name" name="fullName" placeholder="Alex Chen" th:value="${fullName}"
                    class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm" />
           </div>
 
@@ -61,6 +61,7 @@
           </div>
 
           <p class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" th:if="${error}" th:text="${error}">Error message</p>
+          <p class="rounded-md bg-primary/10 px-3 py-2 text-sm text-primary" th:if="${success}" th:text="${success}">Success message</p>
 
           <button type="submit" data-auth-submit="data-auth-submit"
                   class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm bg-primary text-primary-foreground shadow hover:bg-primary/90 h-10 px-8 w-full"

@@ -15,11 +15,8 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
-
-    @NotBlank(message = "Please confirm your password")
-    private String confirmPassword;
 
     @NotBlank(message = "Please select whether you are a rider, driver, or both")
     @Pattern(regexp = "(?i)rider|driver|both",
@@ -48,14 +45,6 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
     }
 
     public String getRole() {

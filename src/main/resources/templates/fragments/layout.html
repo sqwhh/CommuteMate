@@ -29,11 +29,11 @@
     </a>
 
     <nav class="hidden items-center gap-1 md:flex" th:if="${authenticated}">
-      <a th:href="@{/dashboard/driver}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+      <a th:href="@{/dashboard/driver}" th:if="${profile.driverCapable}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
          th:classappend="${active == 'drive'} ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'">Drive</a>
-      <a th:href="@{/dashboard/rider}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+      <a th:href="@{/dashboard/rider}" th:if="${profile.riderCapable}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
          th:classappend="${active == 'ride'} ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'">Ride</a>
-      <a th:href="@{/rides/available}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
+      <a th:href="@{/rides/available}" th:if="${profile.riderCapable}" class="rounded-md px-3 py-2 text-sm font-medium transition-colors"
          th:classappend="${active == 'available'} ? 'bg-secondary text-secondary-foreground' : 'text-muted-foreground hover:text-foreground'">Available rides</a>
     </nav>
 
@@ -43,7 +43,7 @@
           <p class="text-sm font-medium leading-tight" th:text="${profile.fullName}">Alex Chen</p>
           <p class="text-xs text-muted-foreground" th:text="${profile.email}">alex@sfu.ca</p>
         </div>
-        <a th:href="@{/}"
+        <a th:href="@{/logout}"
            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-xs hover:bg-accent hover:text-accent-foreground h-8 px-3">
           <svg class="mr-1.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg> Log out
         </a>

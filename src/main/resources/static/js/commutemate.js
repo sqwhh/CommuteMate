@@ -37,6 +37,8 @@
 
     function setMode(mode) {
       modeInput.value = mode;
+      // Login submits to Spring Security's form login; sign-up to /register
+      form.setAttribute("action", mode === "signup" ? "/register" : "/login");
       tabs.forEach(function (t) {
         if (t.getAttribute("data-mode") === mode) {
           swapClasses(t, TAB_INACTIVE, TAB_ACTIVE);
