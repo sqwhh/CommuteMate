@@ -21,7 +21,9 @@ public class RegisterRequest {
     @NotBlank(message = "Please confirm your password")
     private String confirmPassword;
 
-    @NotBlank(message = "Please select whether you are a rider or driver")
+    @NotBlank(message = "Please select whether you are a rider, driver, or both")
+    @Pattern(regexp = "(?i)rider|driver|both",
+             message = "Role must be rider, driver, or both")
     private String role;
 
     public String getFullName() {

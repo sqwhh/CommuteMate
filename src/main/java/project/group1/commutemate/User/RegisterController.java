@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import project.group1.commutemate.model.Role;
+
 @Controller
 public class RegisterController {
 
@@ -51,7 +53,7 @@ public class RegisterController {
         user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole(Role.valueOf(registerRequest.getRole()));
+        user.setRole(Role.from(registerRequest.getRole()));
 
         userRepository.save(user);
 

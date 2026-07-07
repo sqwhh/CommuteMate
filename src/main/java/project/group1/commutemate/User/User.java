@@ -2,6 +2,7 @@ package project.group1.commutemate.User;
 
 import jakarta.persistence.*;
 
+import project.group1.commutemate.model.Role;
 
 @Entity
 @Table(name ="users")
