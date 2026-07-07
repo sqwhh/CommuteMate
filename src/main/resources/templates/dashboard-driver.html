@@ -68,6 +68,10 @@
           </a>
         </div>
         <div class="mt-4 space-y-3">
+          <div th:if="${#lists.isEmpty(myRides)}" class="rounded-2xl border border-border bg-card p-10 text-center">
+            <p class="font-medium">No rides scheduled yet.</p>
+            <p class="mt-1 text-sm text-muted-foreground">Use “Create ride” to publish your first trip up the mountain.</p>
+          </div>
           <div th:each="r : ${myRides}" class="rounded-2xl border border-border bg-card p-5 card-lift">
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div>

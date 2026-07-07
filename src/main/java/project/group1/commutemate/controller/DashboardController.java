@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import project.group1.commutemate.User.CurrentUserService;
+import project.group1.commutemate.model.Profile;
 import project.group1.commutemate.model.Ride;
 import project.group1.commutemate.service.RideService;
 
@@ -32,9 +34,8 @@ public class DashboardController extends AuthenticatedController {
     }
 
     @GetMapping("/dashboard/driver")
-    public String driverDashboard(Model model) {
-        List<Ride> all = rideService.findAll();
-        model.addAttribute("myRides", all.subList(0, Math.min(2, all.size())));
+    public String driverDashboard(@ModelAttribute("profile") Profile profile, Model model) {
+        model.addAttribute("myRides", rideService.findByDriver(profile.getFullName()));
         return "dashboard-driver";
     }
 

@@ -44,6 +44,10 @@ public class RideService {
         add(new Ride(nextId(), "Daniel K.", "DK", "Coquitlam Central", "SFU Burnaby — Convocation Mall",
                 LocalDateTime.of(today, LocalTime.of(7, 50)), 3, 0, 6, 35, 68,
                 "Mazda 3 · Red", 4.7, null));
+        // Owned by the seeded grading account so its dashboard isn't empty
+        add(new Ride(nextId(), "Demo Driver", "DD", "Production Way–University", "SFU Burnaby — AQ",
+                LocalDateTime.of(today, LocalTime.of(8, 0)), 4, 1, 4, 25, 78,
+                "Kia Soul · Grey", 4.8, "Grading demo ride."));
     }
 
     private String nextId() {
@@ -57,6 +61,18 @@ public class RideService {
     /** All rides, in insertion order. */
     public List<Ride> findAll() {
         return new ArrayList<>(rides);
+    }
+
+    /** Rides offered by one driver, soonest departure first. */
+    public List<Ride> findByDriver(String driver) {
+        List<Ride> result = new ArrayList<>();
+        for (Ride r : rides) {
+            if (r.getDriver() != null && r.getDriver().equalsIgnoreCase(driver)) {
+                result.add(r);
+            }
+        }
+        result.sort(Comparator.comparing(Ride::getDepartAt));
+        return result;
     }
 
     public Ride first() {
