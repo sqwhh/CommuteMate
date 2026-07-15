@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import project.group1.commutemate.RewardService;
 import project.group1.commutemate.model.Profile;
 
 /**
@@ -17,9 +18,11 @@ import project.group1.commutemate.model.Profile;
 public class CurrentUserService {
 
     private final UserRepository userRepository;
+    private final RewardService rewardService;
 
-    public CurrentUserService(UserRepository userRepository) {
+    public CurrentUserService(UserRepository userRepository, RewardService rewardService) {
         this.userRepository = userRepository;
+        this.rewardService = rewardService;
     }
 
     /** Empty when the visitor is not logged in. */
@@ -29,6 +32,15 @@ public class CurrentUserService {
             return Optional.empty();
         }
         return userRepository.findByEmailIgnoreCase(auth.getName())
-                .map(u -> new Profile(u.getEmail(), u.getFullName(), u.getRole(), 0, 0));
+                .map(u -> new Profile(
+                        u.getEmail(),
+                        u.getFullName(),
+                        u.getRole(),
+                        // Epic 4 draft: was hardcoded to 0, 0 before — now backed by
+                        // RewardService. See RewardService for the pending team
+                        // decision on mock-Ride vs real-Trip model for Iteration 2.
+                        rewardService.totalPointsForDriver(u.getFullName()),
+                        rewardService.averageEcoScoreForDriver(u.getFullName())
+                ));
     }
 }
