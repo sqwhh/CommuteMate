@@ -1,99 +1,55 @@
 package project.group1.commutemate.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import project.group1.commutemate.exception.RideOperationException;
 import project.group1.commutemate.model.Ride;
+import project.group1.commutemate.repository.RideRepository;
 
-/**
- * In-memory store of carpool rides.
- *
- * <p>This is deliberately mock data (ported from the prototype's {@code mock-rides.ts})
- * so the UI is fully browsable while the real persistence layer and TransLink/weather
- * APIs are built out in later agile iterations.</p>
- */
+/** Ride creation, lookup, search, and ownership. */
 @Service
 public class RideService {
 
-    private final List<Ride> rides = new ArrayList<>();
-    private final AtomicInteger nextId = new AtomicInteger(1);
+    private final RideRepository rideRepository;
 
-    public RideService() {
-        seed();
+    public RideService(RideRepository rideRepository) {
+        this.rideRepository = rideRepository;
     }
 
-    private void seed() {
-        LocalDate today = LocalDate.now();
-        add(new Ride(nextId(), "Priya S.", "PS", "Metrotown Station", "SFU Burnaby — AQ",
-                LocalDateTime.of(today, LocalTime.of(8, 15)), 4, 2, 4, 25, 82,
-                "Toyota Corolla · Silver", 4.9, "Leaving from Kiss & Ride, quiet drive."));
-        add(new Ride(nextId(), "Marcus L.", "ML", "Production Way–University", "SFU Burnaby — West Mall",
-                LocalDateTime.of(today, LocalTime.of(8, 45)), 3, 1, 3, 20, 74,
-                "Honda Civic · Blue", 4.8, null));
-        add(new Ride(nextId(), "Emily T.", "ET", "Lougheed Town Centre", "SFU Residence",
-                LocalDateTime.of(today, LocalTime.of(9, 10)), 4, 3, 5, 30, 91,
-                "Hyundai Kona EV · White", 5.0, "EV — chill music, no eating in car please."));
-        add(new Ride(nextId(), "Daniel K.", "DK", "Coquitlam Central", "SFU Burnaby — Convocation Mall",
-                LocalDateTime.of(today, LocalTime.of(7, 50)), 3, 0, 6, 35, 68,
-                "Mazda 3 · Red", 4.7, null));
-        // Owned by the seeded grading account so its dashboard isn't empty
-        add(new Ride(nextId(), "Demo Driver", "DD", "Production Way–University", "SFU Burnaby — AQ",
-                LocalDateTime.of(today, LocalTime.of(8, 0)), 4, 1, 4, 25, 78,
-                "Kia Soul · Grey", 4.8, "Grading demo ride."));
-    }
-
-    private String nextId() {
-        return "r" + nextId.getAndIncrement();
-    }
-
-    private void add(Ride ride) {
-        rides.add(ride);
-    }
-
-    /** All rides, in insertion order. */
     public List<Ride> findAll() {
-        return new ArrayList<>(rides);
+        return rideRepository.findAllByOrderByDepartAtAsc();
     }
 
-    /** Rides offered by one driver, soonest departure first. */
-    public List<Ride> findByDriver(String driver) {
-        List<Ride> result = new ArrayList<>();
-        for (Ride r : rides) {
-            if (r.getDriver() != null && r.getDriver().equalsIgnoreCase(driver)) {
-                result.add(r);
-            }
-        }
-        result.sort(Comparator.comparing(Ride::getDepartAt));
-        return result;
+    public List<Ride> findByDriverEmail(String driverEmail) {
+        return rideRepository.findByDriverEmailIgnoreCaseOrderByDepartAtAsc(driverEmail);
+    }
+
+    public Ride findById(Long id) {
+        return rideRepository.findById(id)
+                .orElseThrow(() -> new RideOperationException("Ride not found."));
     }
 
     public Ride first() {
-        return rides.get(0);
+        return findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new RideOperationException("No rides are available."));
     }
 
-    /**
-     * Filter by a free-text query (pickup, destination, or driver) and sort.
-     * Mirrors the search + sort behaviour of the prototype's available-rides page.
-     *
-     * @param query optional search text (may be null/blank)
-     * @param sort  one of "Departure", "Price", "Eco-Score", "Rating"
-     */
     public List<Ride> search(String query, String sort) {
         String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
-
         List<Ride> result = new ArrayList<>();
-        for (Ride r : rides) {
-            String haystack = (r.getFrom() + " " + r.getTo() + " " + r.getDriver()).toLowerCase(Locale.ROOT);
+        for (Ride ride : rideRepository.findAll()) {
+            String haystack = (ride.getFrom() + " " + ride.getTo() + " " + ride.getDriver())
+                    .toLowerCase(Locale.ROOT);
             if (haystack.contains(q)) {
-                result.add(r);
+                result.add(ride);
             }
         }
         result.sort(comparatorFor(sort));
@@ -112,29 +68,52 @@ public class RideService {
         };
     }
 
-    /** Publish a new ride offered by a driver; returns the created ride. */
-    public Ride create(String driver, String from, String to, LocalDateTime departAt,
-                       int seats, int price, String notes) {
-        String initials = initialsOf(driver);
+    @Transactional
+    public Ride create(String driverEmail, String driverName, String from, String to,
+                       LocalDateTime departAt, int seats, int price, String notes) {
+        validateCreate(from, to, departAt, seats, price);
+
         int points = seats * 8 + 5;
         int ecoScore = Math.min(95, 55 + seats * 8);
-        Ride ride = new Ride(nextId(), driver, initials, from, to, departAt,
-                seats, 0, price, points, ecoScore, "Your vehicle", 5.0,
-                (notes == null || notes.isBlank()) ? null : notes.trim());
-        add(ride);
-        return ride;
+        Ride ride = new Ride(normalizeEmail(driverEmail), driverName.trim(), initialsOf(driverName),
+                from.trim(), to.trim(), departAt, seats, 0, price, points, ecoScore,
+                "Your vehicle", 5.0, blankToNull(notes));
+        return rideRepository.save(ride);
+    }
+
+    private void validateCreate(String from, String to, LocalDateTime departAt, int seats, int price) {
+        if (from == null || from.isBlank() || to == null || to.isBlank()) {
+            throw new RideOperationException("Pickup and destination are required.");
+        }
+        if (departAt == null || !departAt.isAfter(LocalDateTime.now())) {
+            throw new RideOperationException("Departure must be in the future.");
+        }
+        if (seats < 1 || seats > 5) {
+            throw new RideOperationException("Seats must be between 1 and 5.");
+        }
+        if (price < 0 || price > 10) {
+            throw new RideOperationException("Price must be between $0 and $10.");
+        }
     }
 
     private String initialsOf(String name) {
         if (name == null || name.isBlank()) {
-            return "You";
+            return "?";
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder initials = new StringBuilder();
         for (String part : name.trim().split("\\s+")) {
-            if (!part.isEmpty() && sb.length() < 2) {
-                sb.append(Character.toUpperCase(part.charAt(0)));
+            if (!part.isEmpty() && initials.length() < 2) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
             }
         }
-        return sb.toString();
+        return initials.toString();
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }

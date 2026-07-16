@@ -62,6 +62,8 @@ public class SecurityConfig {
                 // Driver features: BOTH members qualify too
                 .requestMatchers("/dashboard/driver", "/rides/create", "/ride-request/new")
                         .hasAnyRole("DRIVER", "BOTH")
+                .requestMatchers(HttpMethod.POST, "/rides/*/requests")
+                        .hasAnyRole("RIDER", "BOTH")
                 // Rider features (incl. legacy redirect paths)
                 .requestMatchers("/dashboard/rider", "/rider/dashboard", "/rides/available", "/rides")
                         .hasAnyRole("RIDER", "BOTH")

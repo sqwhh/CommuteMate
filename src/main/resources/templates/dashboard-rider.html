@@ -24,6 +24,8 @@
       </a>
     </div>
 
+    <div th:if="${successMessage}" class="mt-6 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-800" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="mt-6 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive" th:text="${errorMessage}"></div>
     <div class="mt-8 grid gap-6 lg:grid-cols-3">
       <section class="lg:col-span-2 space-y-6">
         <div class="rounded-2xl border border-primary/30 bg-primary/5 p-6" th:with="r=${nextRide}">
@@ -51,7 +53,7 @@
             </div>
             <div class="flex gap-2">
               <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">Message driver</button>
-              <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-sm bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">View trip</button>
+              <a th:href="@{/rides/{id}(id=${r.id})}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-sm bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">View trip</a>
             </div>
           </div>
         </div>
@@ -74,7 +76,7 @@
                   <p class="text-xs text-muted-foreground"
                      th:text="'$' + ${r.price} + ' · ' + ${r.seatsLeft} + (${r.seatsLeft} == 1 ? ' seat left' : ' seats left')">$3 · 2 seats left</p>
                 </div>
-                <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-xs border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3">Request</button>
+                <a th:href="@{/rides/{id}(id=${r.id})}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-xs border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3">View ride</a>
               </div>
             </div>
           </div>

@@ -8,6 +8,8 @@
   <header th:replace="~{fragments/layout :: nav('available')}"></header>
 
   <main class="mx-auto max-w-7xl px-6 py-10">
+    <div th:if="${successMessage}" class="mb-6 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-800" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="mb-6 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive" th:text="${errorMessage}"></div>
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="text-sm font-medium text-primary">Available rides</p>
@@ -99,9 +101,9 @@
           <span class="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
             <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" /></svg> <span th:text="${r.seats}">4</span>
           </span>
-          <button th:disabled="${r.full}"
-                  class="ml-auto inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-xs bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3"
-                  th:text="${r.full} ? 'Waitlist' : 'Request seat'">Request seat</button>
+          <a th:href="@{/rides/{id}(id=${r.id})}"
+             class="ml-auto inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-xs bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3"
+             th:text="${r.full} ? 'View full ride' : 'View and request'">View and request</a>
         </div>
       </article>
     </div>
