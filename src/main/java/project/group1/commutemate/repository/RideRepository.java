@@ -1,5 +1,6 @@
 package project.group1.commutemate.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,10 +15,17 @@ import project.group1.commutemate.model.Ride;
 
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
-    List<Ride> findAllByOrderByDepartAtAsc();
+    // Finds all rides that depart after the given time, ordered by departure time ascending
+    List<Ride> findByDepartAtAfterOrderByDepartAtAsc(LocalDateTime now);
 
-    List<Ride> findByDriverEmailIgnoreCaseOrderByDepartAtAsc(String driverEmail);
+    // Finds all rides for a specific driver that depart after the given time, ordered by departure time ascending
+    List<Ride> findByDriverEmailIgnoreCaseAndDepartAtAfterOrderByDepartAtAsc(
+            String driverEmail, LocalDateTime now);
 
+    // Checks if there are any rides that depart after the given time
+    boolean existsByDepartAtAfter(LocalDateTime now);
+
+    // Finds a ride by its id
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Ride r where r.id = :id")
     Optional<Ride> findByIdForUpdate(@Param("id") Long id);

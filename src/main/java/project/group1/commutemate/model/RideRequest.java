@@ -1,6 +1,9 @@
 package project.group1.commutemate.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,8 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -41,11 +42,14 @@ public class RideRequest {
     @Column(nullable = false, length = 20)
     private RequestStatus status = RequestStatus.PENDING;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    // Timestamps set automatically 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     public RideRequest() {
     }
@@ -55,18 +59,6 @@ public class RideRequest {
         this.riderEmail = riderEmail;
         this.riderName = riderName;
         this.status = RequestStatus.PENDING;
-    }
-
-    @PrePersist
-    void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        createdAt = now;
-        updatedAt = now;
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -109,11 +101,11 @@ public class RideRequest {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 }

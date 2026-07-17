@@ -1,5 +1,6 @@
 package project.group1.commutemate.controller;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,15 +30,19 @@ public class RidesController extends AuthenticatedController {
 
     private final RideService rideService;
     private final RideCoordinationService coordinationService;
+    private final Clock clock;
 
     public RidesController(RideService rideService,
                            RideCoordinationService coordinationService,
-                           CurrentUserService currentUserService) {
+                           CurrentUserService currentUserService,
+                           Clock clock) {
         super(currentUserService);
         this.rideService = rideService;
         this.coordinationService = coordinationService;
+        this.clock = clock;
     }
 
+    // available rides
     @GetMapping("/rides/available")
     public String available(@RequestParam(name = "q", required = false) String query,
                             @RequestParam(required = false, defaultValue = "Departure") String sort,
@@ -49,6 +54,7 @@ public class RidesController extends AuthenticatedController {
         return "rides-available";
     }
 
+    //  ride details
     @GetMapping("/rides/{rideId}")
     public String details(@PathVariable Long rideId,
                           @ModelAttribute("profile") Profile profile,
@@ -60,6 +66,8 @@ public class RidesController extends AuthenticatedController {
             model.addAttribute("myRequest",
                     coordinationService.findRequestForRider(rideId, profile.getEmail()).orElse(null));
             model.addAttribute("owner", ride.getDriverEmail().equalsIgnoreCase(profile.getEmail()));
+            model.addAttribute("upcoming",
+                    ride.getDepartAt() != null && ride.getDepartAt().isAfter(LocalDateTime.now(clock)));
             return "ride-details";
         } catch (RideOperationException ex) {
             redirect.addFlashAttribute("errorMessage", ex.getMessage());
@@ -67,20 +75,11 @@ public class RidesController extends AuthenticatedController {
         }
     }
 
-    @GetMapping("/rides")
-    public String legacyRides() {
-        return "redirect:/rides/available";
-    }
-
+    // create rides
     @GetMapping("/rides/create")
     public String createForm(Model model) {
-        model.addAttribute("minimumDate", LocalDate.now().toString());
+        model.addAttribute("minimumDate", LocalDate.now(clock).toString());
         return "rides-create";
-    }
-
-    @GetMapping("/ride-request/new")
-    public String legacyCreate() {
-        return "redirect:/rides/create";
     }
 
     @PostMapping("/rides/create")
@@ -106,5 +105,19 @@ public class RidesController extends AuthenticatedController {
             redirect.addFlashAttribute("errorMessage", ex.getMessage());
             return "redirect:/rides/create";
         }
+    }
+
+    // delete rides
+    @PostMapping("/rides/{rideId}/delete")
+    public String deleteRide(@PathVariable Long rideId,
+                             @ModelAttribute("profile") Profile profile,
+                             RedirectAttributes redirect) {
+        try {
+            coordinationService.deleteOwnedRide(rideId, profile);
+            redirect.addFlashAttribute("successMessage", "Ride and all of its requests were deleted.");
+        } catch (RideOperationException ex) {
+            redirect.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/dashboard/driver";
     }
 }

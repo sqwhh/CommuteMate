@@ -63,22 +63,26 @@
         <div th:if="${owner}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm">
           You own this ride. Rider requests will appear on your driver dashboard.
         </div>
+        <form th:if="${owner}" method="post" th:action="@{/rides/{id}/delete(id=${ride.id})}" class="mt-4"
+              onsubmit="return confirm('Delete this ride and every related request?');">
+          <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive">Delete ride permanently</button>
+        </form>
 
         <div th:if="${!owner and myRequest != null}" class="mt-5">
           <p class="text-xs font-medium text-muted-foreground">Your current status</p>
           <span class="mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold bg-primary/10 text-primary"
                 th:text="${myRequest.status.label()}">Pending</span>
-          <p th:if="${myRequest.status.name() == 'REJECTED'}" class="mt-3 text-xs text-muted-foreground">A rejected request cannot be submitted again for this ride.</p>
         </div>
 
-        <form th:if="${!owner and profile.riderCapable and !ride.full and (myRequest == null or myRequest.status.name() == 'CANCELLED')}"
+        <form th:if="${!owner and upcoming and profile.riderCapable and !ride.full and (myRequest == null or myRequest.status.name() == 'CANCELLED' or myRequest.status.name() == 'REJECTED')}"
               method="post" th:action="@{/rides/{id}/requests(id=${ride.id})}" class="mt-5">
           <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90">
             Request one seat
           </button>
         </form>
 
-        <p th:if="${!owner and ride.full}" class="mt-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">This ride is currently full.</p>
+        <p th:if="${!owner and !upcoming}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm">This ride has already departed.</p>
+        <p th:if="${!owner and upcoming and ride.full}" class="mt-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">This ride is currently full.</p>
         <p th:if="${!owner and !profile.riderCapable}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm">Your role does not allow rider requests.</p>
       </aside>
     </div>

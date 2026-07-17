@@ -88,8 +88,8 @@ public class Ride {
         this.from = from;
         this.to = to;
         this.departAt = departAt;
-        this.seats = seats;
-        this.seatsTaken = seatsTaken;
+        setSeats(seats);
+        setSeatsTaken(seatsTaken);
         this.price = price;
         this.points = points;
         this.ecoScore = ecoScore;
@@ -99,11 +99,27 @@ public class Ride {
     }
 
     public int getSeatsLeft() {
-        return Math.max(0, seats - seatsTaken);
+        return seats - seatsTaken;
     }
 
     public boolean isFull() {
-        return getSeatsLeft() == 0;
+        return seatsTaken >= seats;
+    }
+
+    // Reserves exactly one seat after request is confirmed
+    public void reserveSeat() {
+        if (isFull()) {
+            throw new IllegalStateException("Cannot reserve a seat on a full ride.");
+        }
+        seatsTaken++;
+    }
+
+    // Releases exactly one seat after a confirmed request is cancelled
+    public void releaseSeat() {
+        if (seatsTaken <= 0) {
+            throw new IllegalStateException("Cannot release a seat when none are reserved.");
+        }
+        seatsTaken--;
     }
 
     public String getDepartTime() {
@@ -174,7 +190,14 @@ public class Ride {
         return seats;
     }
 
+    // Seats setter ensures that seatsTaken does not exceed seats
     public void setSeats(int seats) {
+        if (seats < 1) {
+            throw new IllegalArgumentException("A ride must have at least one seat.");
+        }
+        if (seatsTaken > seats) {
+            throw new IllegalArgumentException("Reserved seats cannot exceed total seats.");
+        }
         this.seats = seats;
     }
 
@@ -182,7 +205,14 @@ public class Ride {
         return seatsTaken;
     }
 
+    // SeatsTaken setter ensures that seatsTaken does not exceed seats
     public void setSeatsTaken(int seatsTaken) {
+        if (seatsTaken < 0) {
+            throw new IllegalArgumentException("Reserved seats cannot be negative.");
+        }
+        if (seats > 0 && seatsTaken > seats) {
+            throw new IllegalArgumentException("Reserved seats cannot exceed total seats.");
+        }
         this.seatsTaken = seatsTaken;
     }
 

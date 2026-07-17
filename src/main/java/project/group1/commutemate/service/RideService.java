@@ -1,5 +1,6 @@
 package project.group1.commutemate.service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -18,17 +19,23 @@ import project.group1.commutemate.repository.RideRepository;
 public class RideService {
 
     private final RideRepository rideRepository;
+    private final Clock clock;
 
-    public RideService(RideRepository rideRepository) {
+    public RideService(RideRepository rideRepository, Clock clock) {
         this.rideRepository = rideRepository;
+        this.clock = clock;
     }
 
-    public List<Ride> findAll() {
-        return rideRepository.findAllByOrderByDepartAtAsc();
+    public List<Ride> findAllUpcoming() {
+        return rideRepository.findByDepartAtAfterOrderByDepartAtAsc(now());
     }
 
-    public List<Ride> findByDriverEmail(String driverEmail) {
-        return rideRepository.findByDriverEmailIgnoreCaseOrderByDepartAtAsc(driverEmail);
+    public List<Ride> findUpcomingByDriverEmail(String driverEmail) {
+        if (driverEmail == null || driverEmail.isBlank()) {
+            return List.of();
+        }
+        return rideRepository.findByDriverEmailIgnoreCaseAndDepartAtAfterOrderByDepartAtAsc(
+                driverEmail, now());
     }
 
     public Ride findById(Long id) {
@@ -36,16 +43,10 @@ public class RideService {
                 .orElseThrow(() -> new RideOperationException("Ride not found."));
     }
 
-    public Ride first() {
-        return findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new RideOperationException("No rides are available."));
-    }
-
     public List<Ride> search(String query, String sort) {
         String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
         List<Ride> result = new ArrayList<>();
-        for (Ride ride : rideRepository.findAll()) {
+        for (Ride ride : findAllUpcoming()) {
             String haystack = (ride.getFrom() + " " + ride.getTo() + " " + ride.getDriver())
                     .toLowerCase(Locale.ROOT);
             if (haystack.contains(q)) {
@@ -71,6 +72,7 @@ public class RideService {
     @Transactional
     public Ride create(String driverEmail, String driverName, String from, String to,
                        LocalDateTime departAt, int seats, int price, String notes) {
+        validateOwner(driverEmail, driverName);
         validateCreate(from, to, departAt, seats, price);
 
         int points = seats * 8 + 5;
@@ -81,11 +83,19 @@ public class RideService {
         return rideRepository.save(ride);
     }
 
+    // Validates that a profile has driver capability
+    private void validateOwner(String driverEmail, String driverName) {
+        if (driverEmail == null || driverEmail.isBlank()
+                || driverName == null || driverName.isBlank()) {
+            throw new RideOperationException("A signed-in driver is required to create a ride.");
+        }
+    }
+
     private void validateCreate(String from, String to, LocalDateTime departAt, int seats, int price) {
         if (from == null || from.isBlank() || to == null || to.isBlank()) {
             throw new RideOperationException("Pickup and destination are required.");
         }
-        if (departAt == null || !departAt.isAfter(LocalDateTime.now())) {
+        if (departAt == null || !departAt.isAfter(now())) {
             throw new RideOperationException("Departure must be in the future.");
         }
         if (seats < 1 || seats > 5) {
@@ -94,6 +104,11 @@ public class RideService {
         if (price < 0 || price > 10) {
             throw new RideOperationException("Price must be between $0 and $10.");
         }
+    }
+
+    // Returns the current time
+    private LocalDateTime now() {
+        return LocalDateTime.now(clock);
     }
 
     private String initialsOf(String name) {
@@ -110,7 +125,7 @@ public class RideService {
     }
 
     private String normalizeEmail(String email) {
-        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     private String blankToNull(String value) {
