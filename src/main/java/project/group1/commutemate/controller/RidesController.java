@@ -9,7 +9,6 @@ import java.time.format.DateTimeParseException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,9 +56,9 @@ public class RidesController extends AuthenticatedController {
     //  ride details
     @GetMapping("/rides/{rideId}")
     public String details(@PathVariable Long rideId,
-                          @ModelAttribute("profile") Profile profile,
                           Model model,
                           RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             Ride ride = rideService.findById(rideId);
             model.addAttribute("ride", ride);
@@ -83,8 +82,7 @@ public class RidesController extends AuthenticatedController {
     }
 
     @PostMapping("/rides/create")
-    public String create(@ModelAttribute("profile") Profile profile,
-                         @RequestParam String from,
+    public String create(@RequestParam String from,
                          @RequestParam String to,
                          @RequestParam String date,
                          @RequestParam String time,
@@ -92,6 +90,7 @@ public class RidesController extends AuthenticatedController {
                          @RequestParam(defaultValue = "4") int price,
                          @RequestParam(required = false) String notes,
                          RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             LocalDateTime departAt = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
             rideService.create(profile.getEmail(), profile.getFullName(), from, to,
@@ -110,8 +109,8 @@ public class RidesController extends AuthenticatedController {
     // delete rides
     @PostMapping("/rides/{rideId}/delete")
     public String deleteRide(@PathVariable Long rideId,
-                             @ModelAttribute("profile") Profile profile,
                              RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             coordinationService.deleteOwnedRide(rideId, profile);
             redirect.addFlashAttribute("successMessage", "Ride and all of its requests were deleted.");

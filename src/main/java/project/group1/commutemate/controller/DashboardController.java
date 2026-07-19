@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 import project.group1.commutemate.User.CurrentUserService;
 import project.group1.commutemate.model.Profile;
@@ -41,7 +40,8 @@ public class DashboardController extends AuthenticatedController {
 
     // rider
     @GetMapping("/dashboard/rider")
-    public String riderDashboard(@ModelAttribute("profile") Profile profile, Model model) {
+    public String riderDashboard(Model model) {
+        Profile profile = requireCurrentProfile();
         LocalDateTime now = LocalDateTime.now(clock);
         List<RideRequest> requests = coordinationService.findRequestsForRider(profile.getEmail());
         Ride nextConfirmedRide = requests.stream()
@@ -70,7 +70,8 @@ public class DashboardController extends AuthenticatedController {
 
     // driver
     @GetMapping("/dashboard/driver")
-    public String driverDashboard(@ModelAttribute("profile") Profile profile, Model model) {
+    public String driverDashboard(Model model) {
+        Profile profile = requireCurrentProfile();
         LocalDateTime now = LocalDateTime.now(clock);
         List<Ride> myRides = rideService.findUpcomingByDriverEmail(profile.getEmail());
         List<RideRequest> requests = coordinationService.findRequestsForDriver(profile.getEmail());
