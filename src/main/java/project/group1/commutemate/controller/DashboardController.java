@@ -1,47 +1,83 @@
 package project.group1.commutemate.controller;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 import project.group1.commutemate.User.CurrentUserService;
 import project.group1.commutemate.model.Profile;
+import project.group1.commutemate.model.RequestStatus;
 import project.group1.commutemate.model.Ride;
+import project.group1.commutemate.model.RideRequest;
+import project.group1.commutemate.service.RideCoordinationService;
 import project.group1.commutemate.service.RideService;
 
-/**
- * Rider and driver dashboards (Epic 2).
- */
+/** Rider and driver dashboards. */
 @Controller
 public class DashboardController extends AuthenticatedController {
 
     private final RideService rideService;
+    private final RideCoordinationService coordinationService;
+    private final Clock clock;
 
-    public DashboardController(RideService rideService, CurrentUserService currentUserService) {
+    public DashboardController(RideService rideService,
+                               RideCoordinationService coordinationService,
+                               CurrentUserService currentUserService,
+                               Clock clock) {
         super(currentUserService);
         this.rideService = rideService;
+        this.coordinationService = coordinationService;
+        this.clock = clock;
     }
 
+    // rider
     @GetMapping("/dashboard/rider")
     public String riderDashboard(Model model) {
-        List<Ride> all = rideService.findAll();
-        model.addAttribute("nextRide", all.get(0));
-        model.addAttribute("suggested", all.subList(1, Math.min(3, all.size())));
+        Profile profile = requireCurrentProfile();
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<RideRequest> requests = coordinationService.findRequestsForRider(profile.getEmail());
+        Ride nextConfirmedRide = requests.stream()
+                .filter(request -> request.getStatus() == RequestStatus.CONFIRMED)
+                .map(RideRequest::getRide)
+                .filter(ride -> ride.getDepartAt() != null && ride.getDepartAt().isAfter(now))
+                .min((first, second) -> first.getDepartAt().compareTo(second.getDepartAt()))
+                .orElse(null);
+
+        List<Ride> upcoming = rideService.findAllUpcoming();
+        List<Ride> suggested = upcoming.stream()
+                .filter(ride -> !ride.isFull())
+                .filter(ride -> !ride.getDriverEmail().equalsIgnoreCase(profile.getEmail()))
+                .limit(2)
+                .toList();
+
+        model.addAttribute("now", now);
+        model.addAttribute("nextRide", nextConfirmedRide);
+        model.addAttribute("riderRequests", requests);
+        model.addAttribute("suggested", suggested);
+        model.addAttribute("availableRideCount",
+                upcoming.stream().filter(ride -> !ride.isFull()).count());
         return "dashboard-rider";
     }
 
+    // driver
     @GetMapping("/dashboard/driver")
-    public String driverDashboard(@ModelAttribute("profile") Profile profile, Model model) {
-        model.addAttribute("myRides", rideService.findByDriver(profile.getFullName()));
-        return "dashboard-driver";
-    }
+    public String driverDashboard(Model model) {
+        Profile profile = requireCurrentProfile();
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<Ride> myRides = rideService.findUpcomingByDriverEmail(profile.getEmail());
+        List<RideRequest> requests = coordinationService.findRequestsForDriver(profile.getEmail());
 
-    /** Legacy path from the original scaffold — keep it working. */
-    @GetMapping("/rider/dashboard")
-    public String legacyRiderDashboard() {
-        return "redirect:/dashboard/rider";
+        model.addAttribute("now", now);
+        model.addAttribute("myRides", myRides);
+        model.addAttribute("driverRequests", requests);
+        model.addAttribute("upcomingRideCount", myRides.size());
+        model.addAttribute("confirmedRiderCount", requests.stream()
+                .filter(request -> request.getStatus() == RequestStatus.CONFIRMED)
+                .count());
+        return "dashboard-driver";
     }
 }

@@ -18,9 +18,9 @@ import project.group1.commutemate.service.RideService;
 /**
  * Unit tests for {@link RewardService}.
  *
- * These test the draft mock-Ride-based implementation of Epic 4.
  * RideService is mocked so these tests don't depend on its seeded demo data
- * or on a running Spring context.
+ * or a running Spring context. Keyed by driver email, matching
+ * RideService.findUpcomingByDriverEmail (see Epic 5 PR #10).
  */
 @ExtendWith(MockitoExtension.class)
 class RewardServiceTest {
@@ -35,11 +35,11 @@ class RewardServiceTest {
         rewardService = new RewardService(rideService);
     }
 
-    private Ride ride(String driver, int points, int ecoScore) {
+    private Ride ride(String driverEmail, int points, int ecoScore) {
         return new Ride(
-                "r1", driver, "XX",
+                driverEmail, "Test Driver", "TD",
                 "Somewhere", "SFU Burnaby",
-                LocalDateTime.now(), 3, 0, 4,
+                LocalDateTime.now().plusDays(1), 3, 0, 4,
                 points, ecoScore,
                 "Test Car", 5.0, null
         );
@@ -47,42 +47,42 @@ class RewardServiceTest {
 
     @Test
     void totalPointsForDriver_sumsPointsAcrossAllTheirRides() {
-        when(rideService.findByDriver("Alex Chen")).thenReturn(List.of(
-                ride("Alex Chen", 20, 80),
-                ride("Alex Chen", 15, 70)
+        when(rideService.findUpcomingByDriverEmail("alex@sfu.ca")).thenReturn(List.of(
+                ride("alex@sfu.ca", 20, 80),
+                ride("alex@sfu.ca", 15, 70)
         ));
 
-        int total = rewardService.totalPointsForDriver("Alex Chen");
+        int total = rewardService.totalPointsForDriver("alex@sfu.ca");
 
         assertEquals(35, total);
     }
 
     @Test
     void totalPointsForDriver_returnsZero_whenDriverHasNoRides() {
-        when(rideService.findByDriver("Nobody")).thenReturn(List.of());
+        when(rideService.findUpcomingByDriverEmail("nobody@sfu.ca")).thenReturn(List.of());
 
-        int total = rewardService.totalPointsForDriver("Nobody");
+        int total = rewardService.totalPointsForDriver("nobody@sfu.ca");
 
         assertEquals(0, total);
     }
 
     @Test
     void averageEcoScoreForDriver_averagesAcrossRides() {
-        when(rideService.findByDriver("Priya S.")).thenReturn(List.of(
-                ride("Priya S.", 10, 80),
-                ride("Priya S.", 10, 90)
+        when(rideService.findUpcomingByDriverEmail("priya@sfu.ca")).thenReturn(List.of(
+                ride("priya@sfu.ca", 10, 80),
+                ride("priya@sfu.ca", 10, 90)
         ));
 
-        int avg = rewardService.averageEcoScoreForDriver("Priya S.");
+        int avg = rewardService.averageEcoScoreForDriver("priya@sfu.ca");
 
         assertEquals(85, avg);
     }
 
     @Test
     void averageEcoScoreForDriver_returnsZero_whenDriverHasNoRides() {
-        when(rideService.findByDriver("Nobody")).thenReturn(List.of());
+        when(rideService.findUpcomingByDriverEmail("nobody@sfu.ca")).thenReturn(List.of());
 
-        int avg = rewardService.averageEcoScoreForDriver("Nobody");
+        int avg = rewardService.averageEcoScoreForDriver("nobody@sfu.ca");
 
         assertEquals(0, avg);
     }
@@ -90,12 +90,12 @@ class RewardServiceTest {
     @Test
     void averageEcoScoreForDriver_roundsDown_onUnevenDivision() {
         // (80 + 81) / 2 = 80.5 -> integer division rounds down to 80
-        when(rideService.findByDriver("Marcus L.")).thenReturn(List.of(
-                ride("Marcus L.", 10, 80),
-                ride("Marcus L.", 10, 81)
+        when(rideService.findUpcomingByDriverEmail("marcus@sfu.ca")).thenReturn(List.of(
+                ride("marcus@sfu.ca", 10, 80),
+                ride("marcus@sfu.ca", 10, 81)
         ));
 
-        int avg = rewardService.averageEcoScoreForDriver("Marcus L.");
+        int avg = rewardService.averageEcoScoreForDriver("marcus@sfu.ca");
 
         assertEquals(80, avg);
     }

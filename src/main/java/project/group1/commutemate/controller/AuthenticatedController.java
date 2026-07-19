@@ -1,5 +1,7 @@
 package project.group1.commutemate.controller;
 
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import project.group1.commutemate.User.CurrentUserService;
@@ -25,9 +27,19 @@ public abstract class AuthenticatedController {
         return true;
     }
 
+    @InitBinder("profile")
+    public void disableProfileBinding(WebDataBinder binder) {
+        binder.setAllowedFields();
+    }
+
+    protected final Profile requireCurrentProfile() {
+        return currentUserService.currentProfile()
+                .orElseThrow(() ->
+                        new IllegalStateException("No signed-in member on a protected page"));
+    }
+
     @ModelAttribute("profile")
     public Profile currentProfile() {
-        return currentUserService.currentProfile()
-                .orElseThrow(() -> new IllegalStateException("No signed-in member on a protected page"));
+        return requireCurrentProfile();
     }
 }

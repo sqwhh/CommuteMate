@@ -11,21 +11,19 @@ import project.group1.commutemate.service.RideService;
  * Epic 4 — Incentives & Rewards.
  *
  * ============================== DRAFT / TENTATIVE ==============================
- * This is a draft re-implementation adapted to the current mock Ride/RideService
- * model (points and ecoScore computed by formula at ride creation, no trip
- * completion event). The original Epic 4 implementation awarded a flat 10
- * points when a real Trip transitioned to COMPLETED — that logic still exists
- * on the feature/epic-4-rewards branch and the backup/master-epic4-5-trip
- * branch, built against the real Trip/TripService model.
- *
- * TEAM DECISION NEEDED: are we keeping the mock Ride model (this file) or
- * bringing back the real Trip/TripStatus/completeTrip() flow for Iteration 2?
- * See meeting notes — flagged as unresolved as of this commit.
+ * Adapted to the Ride model as it evolves. Points and ecoScore are computed
+ * by formula at ride creation, not by a trip-completion event. See meeting
+ * notes for the ongoing team decision on the reward-triggering model.
  * ================================================================================
  *
- * For now, this aggregates a driver's total points/eco-score across all their
- * published rides, since Profile.points / Profile.ecoScore were previously
- * hardcoded to 0 in CurrentUserService with no real calculation behind them.
+ * NOTE (as of Epic 5 PR #10 merge): RideService.findByDriver(String) was
+ * removed. The only driver-scoped lookup available now is
+ * findUpcomingByDriverEmail(String), which only returns rides that have NOT
+ * yet departed. That means completed/past rides currently do NOT count
+ * toward a driver's totals below — this is a known limitation, not a bug.
+ * A proper fix would add a RideRepository.findByDriverEmailIgnoreCase(...)
+ * method (all rides, any time) — flagged for Roman/Epic 5 to add, since
+ * RideRepository is owned by that epic and under active development.
  */
 @Service
 public class RewardService {
@@ -36,9 +34,9 @@ public class RewardService {
         this.rideService = rideService;
     }
 
-    /** Sum of points across all rides this person has published as a driver. */
-    public int totalPointsForDriver(String driverFullName) {
-        List<Ride> rides = rideService.findByDriver(driverFullName);
+    /** Sum of points across this driver's upcoming published rides. */
+    public int totalPointsForDriver(String driverEmail) {
+        List<Ride> rides = rideService.findUpcomingByDriverEmail(driverEmail);
         int total = 0;
         for (Ride ride : rides) {
             total += ride.getPoints();
@@ -47,11 +45,11 @@ public class RewardService {
     }
 
     /**
-     * Average eco-score across this driver's published rides, rounded down.
-     * Returns 0 if the driver has no rides yet.
+     * Average eco-score across this driver's upcoming published rides,
+     * rounded down. Returns 0 if the driver has no rides yet.
      */
-    public int averageEcoScoreForDriver(String driverFullName) {
-        List<Ride> rides = rideService.findByDriver(driverFullName);
+    public int averageEcoScoreForDriver(String driverEmail) {
+        List<Ride> rides = rideService.findUpcomingByDriverEmail(driverEmail);
         if (rides.isEmpty()) {
             return 0;
         }

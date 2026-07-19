@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ride details — CommuteMate',
+  'Review a CommuteMate ride and request one seat.')}" ></head>
+<body>
+<div class="min-h-screen bg-background">
+  <header th:replace="~{fragments/layout :: nav('available')}"></header>
+
+  <main class="mx-auto max-w-5xl px-6 py-10">
+    <a th:href="@{/rides/available}" class="text-sm text-muted-foreground hover:text-foreground">← Back to available rides</a>
+
+    <div th:if="${successMessage}" class="mt-5 rounded-xl bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-800" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive" th:text="${errorMessage}"></div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+      <section class="lg:col-span-2 rounded-2xl border border-border bg-card p-6 card-lift">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="grid h-11 w-11 place-items-center rounded-full bg-primary text-primary-foreground text-sm font-semibold"
+                 th:text="${ride.driverInitials}">DD</div>
+            <div>
+              <p class="font-display text-xl font-semibold" th:text="${ride.driver}">Demo Driver</p>
+              <p class="text-sm text-muted-foreground" th:text="${ride.car} + ' · ' + ${#numbers.formatDecimal(ride.rating, 1, 1)} + '★'">Vehicle · 5★</p>
+            </div>
+          </div>
+          <span class="rounded-full px-3 py-1 text-xs font-medium"
+                th:classappend="${ride.full} ? 'bg-muted text-muted-foreground' : 'bg-emerald-500/10 text-emerald-800'"
+                th:text="${ride.full} ? 'Full' : ${ride.seatsLeft} + (${ride.seatsLeft} == 1 ? ' seat left' : ' seats left')">2 seats left</span>
+        </div>
+
+        <div class="mt-6 space-y-3">
+          <div>
+            <p class="text-xs font-medium text-muted-foreground">Pickup</p>
+            <p class="mt-1 text-lg font-semibold" th:text="${ride.from}">Production Way</p>
+          </div>
+          <div>
+            <p class="text-xs font-medium text-muted-foreground">Destination</p>
+            <p class="mt-1 text-lg font-semibold" th:text="${ride.to}">SFU Burnaby</p>
+          </div>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div class="rounded-lg bg-secondary/60 p-3">
+              <p class="text-xs text-muted-foreground">Departure</p>
+              <p class="mt-1 text-sm font-semibold" th:text="${ride.departDate} + ' · ' + ${ride.departTime}">Tomorrow · 8:00 AM</p>
+            </div>
+            <div class="rounded-lg bg-secondary/60 p-3">
+              <p class="text-xs text-muted-foreground">Price</p>
+              <p class="mt-1 text-sm font-semibold" th:text="'$' + ${ride.price} + ' per seat'">$4 per seat</p>
+            </div>
+            <div class="rounded-lg bg-secondary/60 p-3">
+              <p class="text-xs text-muted-foreground">Occupancy</p>
+              <p class="mt-1 text-sm font-semibold" th:text="${ride.seatsTaken} + '/' + ${ride.seats} + ' confirmed'">1/4 confirmed</p>
+            </div>
+          </div>
+        </div>
+
+        <p th:if="${ride.notes}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm text-muted-foreground" th:text="${ride.notes}"></p>
+      </section>
+
+      <aside class="rounded-2xl border border-border bg-card p-6 card-lift">
+        <h2 class="font-display text-lg font-semibold">Seat request</h2>
+        <p class="mt-2 text-sm text-muted-foreground">One request is for one seat. A pending request does not reserve the seat until the driver confirms it.</p>
+
+        <div th:if="${owner}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm">
+          You own this ride. Rider requests will appear on your driver dashboard.
+        </div>
+        <form th:if="${owner}" method="post" th:action="@{/rides/{id}/delete(id=${ride.id})}" class="mt-4"
+              onsubmit="return confirm('Delete this ride and every related request?');">
+          <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive">Delete ride permanently</button>
+        </form>
+
+        <div th:if="${!owner and myRequest != null}" class="mt-5">
+          <p class="text-xs font-medium text-muted-foreground">Your current status</p>
+          <span class="mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold bg-primary/10 text-primary"
+                th:text="${myRequest.status.label()}">Pending</span>
+        </div>
+
+        <form th:if="${!owner and upcoming and profile.riderCapable and !ride.full and (myRequest == null or myRequest.status.name() == 'CANCELLED' or myRequest.status.name() == 'REJECTED')}"
+              method="post" th:action="@{/rides/{id}/requests(id=${ride.id})}" class="mt-5">
+          <button type="submit" class="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90">
+            Request one seat
+          </button>
+        </form>
+
+        <p th:if="${!owner and !upcoming}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm">This ride has already departed.</p>
+        <p th:if="${!owner and upcoming and ride.full}" class="mt-5 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">This ride is currently full.</p>
+        <p th:if="${!owner and !profile.riderCapable}" class="mt-5 rounded-lg bg-secondary/60 px-4 py-3 text-sm">Your role does not allow rider requests.</p>
+      </aside>
+    </div>
+  </main>
+</div>
+</body>
+</html>

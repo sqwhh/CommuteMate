@@ -1,35 +1,47 @@
 package project.group1.commutemate.controller;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import project.group1.commutemate.User.CurrentUserService;
+import project.group1.commutemate.exception.RideOperationException;
 import project.group1.commutemate.model.Profile;
+import project.group1.commutemate.model.Ride;
+import project.group1.commutemate.service.RideCoordinationService;
 import project.group1.commutemate.service.RideService;
 
-/**
- * Browse available rides and publish new ones (Epics 3 & 5).
- */
+/** Browse, inspect, and publish persistent rides. */
 @Controller
 public class RidesController extends AuthenticatedController {
 
     private static final String[] SORT_OPTIONS = {"Departure", "Price", "Eco-Score", "Rating"};
 
     private final RideService rideService;
+    private final RideCoordinationService coordinationService;
+    private final Clock clock;
 
-    public RidesController(RideService rideService, CurrentUserService currentUserService) {
+    public RidesController(RideService rideService,
+                           RideCoordinationService coordinationService,
+                           CurrentUserService currentUserService,
+                           Clock clock) {
         super(currentUserService);
         this.rideService = rideService;
+        this.coordinationService = coordinationService;
+        this.clock = clock;
     }
 
+    // available rides
     @GetMapping("/rides/available")
     public String available(@RequestParam(name = "q", required = false) String query,
                             @RequestParam(required = false, defaultValue = "Departure") String sort,
@@ -41,35 +53,70 @@ public class RidesController extends AuthenticatedController {
         return "rides-available";
     }
 
-    /** Legacy link target from the original scaffold. */
-    @GetMapping("/rides")
-    public String legacyRides() {
-        return "redirect:/rides/available";
+    //  ride details
+    @GetMapping("/rides/{rideId}")
+    public String details(@PathVariable Long rideId,
+                          Model model,
+                          RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
+        try {
+            Ride ride = rideService.findById(rideId);
+            model.addAttribute("ride", ride);
+            model.addAttribute("myRequest",
+                    coordinationService.findRequestForRider(rideId, profile.getEmail()).orElse(null));
+            model.addAttribute("owner", ride.getDriverEmail().equalsIgnoreCase(profile.getEmail()));
+            model.addAttribute("upcoming",
+                    ride.getDepartAt() != null && ride.getDepartAt().isAfter(LocalDateTime.now(clock)));
+            return "ride-details";
+        } catch (RideOperationException ex) {
+            redirect.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/rides/available";
+        }
     }
 
+    // create rides
     @GetMapping("/rides/create")
     public String createForm(Model model) {
+        model.addAttribute("minimumDate", LocalDate.now(clock).toString());
         return "rides-create";
     }
 
-    /** Legacy link target from the original scaffold. */
-    @GetMapping("/ride-request/new")
-    public String legacyCreate() {
-        return "redirect:/rides/create";
-    }
-
     @PostMapping("/rides/create")
-    public String create(@ModelAttribute("profile") Profile profile,
-                         @RequestParam String from,
+    public String create(@RequestParam String from,
                          @RequestParam String to,
                          @RequestParam String date,
                          @RequestParam String time,
                          @RequestParam(defaultValue = "3") int seats,
                          @RequestParam(defaultValue = "4") int price,
-                         @RequestParam(required = false) String notes) {
+                         @RequestParam(required = false) String notes,
+                         RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
+        try {
+            LocalDateTime departAt = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
+            rideService.create(profile.getEmail(), profile.getFullName(), from, to,
+                    departAt, seats, price, notes);
+            redirect.addFlashAttribute("successMessage", "Ride published successfully.");
+            return "redirect:/dashboard/driver";
+        } catch (DateTimeParseException ex) {
+            redirect.addFlashAttribute("errorMessage", "Enter a valid departure date and time.");
+            return "redirect:/rides/create";
+        } catch (RideOperationException ex) {
+            redirect.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/rides/create";
+        }
+    }
 
-        LocalDateTime departAt = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
-        rideService.create(profile.getFullName(), from, to, departAt, seats, price, notes);
+    // delete rides
+    @PostMapping("/rides/{rideId}/delete")
+    public String deleteRide(@PathVariable Long rideId,
+                             RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
+        try {
+            coordinationService.deleteOwnedRide(rideId, profile);
+            redirect.addFlashAttribute("successMessage", "Ride and all of its requests were deleted.");
+        } catch (RideOperationException ex) {
+            redirect.addFlashAttribute("errorMessage", ex.getMessage());
+        }
         return "redirect:/dashboard/driver";
     }
 }

@@ -37,10 +37,10 @@ public class CurrentUserService {
                         u.getFullName(),
                         u.getRole(),
                         // Epic 4 draft: was hardcoded to 0, 0 before — now backed by
-                        // RewardService. See RewardService for the pending team
-                        // decision on mock-Ride vs real-Trip model for Iteration 2.
-                        rewardService.totalPointsForDriver(u.getFullName()),
-                        rewardService.averageEcoScoreForDriver(u.getFullName())
+                        // RewardService, keyed by email (matches RideService's
+                        // findUpcomingByDriverEmail after the Epic 5 PR #10 merge).
+                        rewardService.totalPointsForDriver(u.getEmail()),
+                        rewardService.averageEcoScoreForDriver(u.getEmail())
                 ));
     }
 }

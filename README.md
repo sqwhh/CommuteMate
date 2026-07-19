@@ -4,7 +4,7 @@ CommuteMate is a web-based application designed to help SFU students commute to 
 
 ## Tech Stack
 
-CommuteMate is a **Spring Boot** application (Java 21) that serves server-rendered **Thymeleaf** HTML pages styled with plain **CSS** and enhanced with vanilla **JavaScript**. Ride data is currently held in memory (`RideService`) so the full interface is browsable while persistence and the external APIs (TransLink, Open-Meteo, OpenRouteService) are built out in later iterations.
+CommuteMate is a **Spring Boot** application (Java 21) that serves server-rendered **Thymeleaf** HTML pages styled with plain **CSS** and enhanced with vanilla **JavaScript**. User accounts, rides, and ride requests are stored in a file-based H2 database. The external APIs (TransLink, Open-Meteo, and OpenRouteService) are planned for later iterations.
 
 ## Running CommuteMate
 
@@ -15,6 +15,8 @@ From the `group-project-1` directory:
 ```
 
 Then open <http://localhost:8080>. To build a runnable jar instead: `./mvnw clean package` then `java -jar target/commutemate-0.0.1-SNAPSHOT.jar`.
+
+Demo rides are enabled by default so a fresh checkout is immediately browsable. Set `SEED_DEMO_DATA=false` to disable them.
 
 ## Screens
 
