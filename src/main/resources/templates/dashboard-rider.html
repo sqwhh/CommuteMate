@@ -109,7 +109,7 @@
                   <div class="grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-semibold"
                        th:text="${r.driverInitials}">ML</div>
                   <div>
-                    <p class="text-sm font-semibold" th:text="${r.driver} + ' · ' + ${r.rating} + '★'">Marcus L. · 4.8★</p>
+                    <p class="text-sm font-semibold" th:text="${r.driver} + ' · ' + ${#numbers.formatDecimal(r.rating, 1, 1)} + '★'">Marcus L. · 4.8★</p>
                     <p class="text-xs text-muted-foreground" th:text="${r.from} + ' → ' + ${r.to}">Production Way–University → SFU Burnaby — West Mall</p>
                   </div>
                 </div>

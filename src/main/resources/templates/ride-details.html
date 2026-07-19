@@ -20,7 +20,7 @@
                  th:text="${ride.driverInitials}">DD</div>
             <div>
               <p class="font-display text-xl font-semibold" th:text="${ride.driver}">Demo Driver</p>
-              <p class="text-sm text-muted-foreground" th:text="${ride.car} + ' · ' + ${ride.rating} + '★'">Vehicle · 5★</p>
+              <p class="text-sm text-muted-foreground" th:text="${ride.car} + ' · ' + ${#numbers.formatDecimal(ride.rating, 1, 1)} + '★'">Vehicle · 5★</p>
             </div>
           </div>
           <span class="rounded-full px-3 py-1 text-xs font-medium"

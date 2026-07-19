@@ -46,14 +46,18 @@ public class RideCoordinationService {
             throw new RideOperationException("This ride is full.");
         }
 
+        String normalizedEmail = rider.getEmail().trim().toLowerCase(Locale.ROOT);
+        String normalizedName = rider.getFullName().trim();
+
         Optional<RideRequest> existing = requestRepository
-                .findByRideIdAndRiderEmailIgnoreCase(rideId, rider.getEmail());
+                .findByRideIdAndRiderEmailIgnoreCase(rideId, normalizedEmail);
         if (existing.isPresent()) {
             RideRequest request = existing.get();
             if (request.getStatus() == RequestStatus.CANCELLED
                     || request.getStatus() == RequestStatus.REJECTED) {
                 request.setStatus(RequestStatus.PENDING);
-                request.setRiderName(rider.getFullName().trim());
+                request.setRiderEmail(normalizedEmail);
+                request.setRiderName(normalizedName);
                 return requestRepository.save(request);
             }
             throw new RideOperationException("You already requested this ride.");
@@ -61,8 +65,8 @@ public class RideCoordinationService {
 
         return requestRepository.save(new RideRequest(
                 ride,
-                rider.getEmail().trim().toLowerCase(Locale.ROOT),
-                rider.getFullName().trim()));
+                normalizedEmail,
+                normalizedName));
     }
 
     // Confirms a request and reserves a seat
@@ -102,7 +106,7 @@ public class RideCoordinationService {
     // Cancels a request and releases a reserved seat
     @Transactional
     public RideRequest cancelRequest(Long requestId, Profile rider) {
-        requireRiderCapabilityForCancellation(rider);
+        requireRiderCapability(rider, "Your account cannot cancel rider requests.");
 
         RideRequest request = lockedRequest(requestId);
         if (!request.getRiderEmail().equalsIgnoreCase(rider.getEmail())) {
@@ -177,15 +181,12 @@ public class RideCoordinationService {
 
     // Validates that a profile has rider capability
     private void requireRiderCapability(Profile rider) {
-        if (rider == null || !rider.isRiderCapable()) {
-            throw new RideOperationException("Your account cannot request rides.");
-        }
+        requireRiderCapability(rider, "Your account cannot request rides.");
     }
 
-    // Validates that a profile has driver capability 
-    private void requireRiderCapabilityForCancellation(Profile rider) {
+    private void requireRiderCapability(Profile rider, String message) {
         if (rider == null || !rider.isRiderCapable()) {
-            throw new RideOperationException("Your account cannot cancel rider requests.");
+            throw new RideOperationException(message);
         }
     }
 

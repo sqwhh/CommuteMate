@@ -1,7 +1,6 @@
 package project.group1.commutemate.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -26,8 +25,8 @@ public class RideRequestController extends AuthenticatedController {
     // requests
     @PostMapping("/rides/{rideId}/requests")
     public String requestSeat(@PathVariable Long rideId,
-                              @ModelAttribute("profile") Profile profile,
                               RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             coordinationService.requestSeat(rideId, profile);
             redirect.addFlashAttribute("successMessage",
@@ -41,8 +40,8 @@ public class RideRequestController extends AuthenticatedController {
     // confirm
     @PostMapping("/ride-requests/{requestId}/confirm")
     public String confirm(@PathVariable Long requestId,
-                          @ModelAttribute("profile") Profile profile,
                           RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             coordinationService.confirmRequest(requestId, profile);
             redirect.addFlashAttribute("successMessage", "Rider confirmed and one seat reserved.");
@@ -55,8 +54,8 @@ public class RideRequestController extends AuthenticatedController {
     // reject
     @PostMapping("/ride-requests/{requestId}/reject")
     public String reject(@PathVariable Long requestId,
-                         @ModelAttribute("profile") Profile profile,
                          RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             coordinationService.rejectRequest(requestId, profile);
             redirect.addFlashAttribute("successMessage", "Ride request rejected.");
@@ -69,8 +68,8 @@ public class RideRequestController extends AuthenticatedController {
     // cancel
     @PostMapping("/ride-requests/{requestId}/cancel")
     public String cancel(@PathVariable Long requestId,
-                         @ModelAttribute("profile") Profile profile,
                          RedirectAttributes redirect) {
+        Profile profile = requireCurrentProfile();
         try {
             coordinationService.cancelRequest(requestId, profile);
             redirect.addFlashAttribute("successMessage", "Ride request cancelled.");
@@ -79,5 +78,4 @@ public class RideRequestController extends AuthenticatedController {
         }
         return "redirect:/dashboard/rider";
     }
-
 }

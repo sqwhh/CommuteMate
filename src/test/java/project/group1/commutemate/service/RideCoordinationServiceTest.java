@@ -3,6 +3,7 @@ package project.group1.commutemate.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -95,31 +96,41 @@ class RideCoordinationServiceTest {
     }
 
     @Test
-    void cancelledRequestCanBeSubmittedAgain() {
-        RideRequest existing = new RideRequest(ride, rider.getEmail(), rider.getFullName());
+    void cancelledRequestCanBeSubmittedAgainAndRefreshesRiderIdentity() {
+        Profile updatedRider = new Profile(
+                "  RIDER@SFU.CA  ", "  Updated Rider  ", Role.RIDER, 0, 0);
+        RideRequest existing = new RideRequest(ride, "RIDER@SFU.CA", "Old Rider Name");
         existing.setStatus(RequestStatus.CANCELLED);
         when(rideRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(ride));
-        when(requestRepository.findByRideIdAndRiderEmailIgnoreCase(10L, rider.getEmail()))
+        when(requestRepository.findByRideIdAndRiderEmailIgnoreCase(10L, "rider@sfu.ca"))
                 .thenReturn(Optional.of(existing));
         when(requestRepository.save(existing)).thenReturn(existing);
 
-        RideRequest reopened = service.requestSeat(10L, rider);
+        RideRequest reopened = service.requestSeat(10L, updatedRider);
 
         assertEquals(RequestStatus.PENDING, reopened.getStatus());
+        assertEquals("rider@sfu.ca", reopened.getRiderEmail());
+        assertEquals("Updated Rider", reopened.getRiderName());
+        verify(requestRepository).save(existing);
     }
 
     @Test
-    void rejectedRequestCanBeSubmittedAgain() {
-        RideRequest existing = new RideRequest(ride, rider.getEmail(), rider.getFullName());
+    void rejectedRequestCanBeSubmittedAgainAndRefreshesRiderIdentity() {
+        Profile updatedRider = new Profile(
+                "  RIDER@SFU.CA  ", "  Updated Rider  ", Role.RIDER, 0, 0);
+        RideRequest existing = new RideRequest(ride, "RIDER@SFU.CA", "Old Rider Name");
         existing.setStatus(RequestStatus.REJECTED);
         when(rideRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(ride));
-        when(requestRepository.findByRideIdAndRiderEmailIgnoreCase(10L, rider.getEmail()))
+        when(requestRepository.findByRideIdAndRiderEmailIgnoreCase(10L, "rider@sfu.ca"))
                 .thenReturn(Optional.of(existing));
         when(requestRepository.save(existing)).thenReturn(existing);
 
-        RideRequest reopened = service.requestSeat(10L, rider);
+        RideRequest reopened = service.requestSeat(10L, updatedRider);
 
         assertEquals(RequestStatus.PENDING, reopened.getStatus());
+        assertEquals("rider@sfu.ca", reopened.getRiderEmail());
+        assertEquals("Updated Rider", reopened.getRiderName());
+        verify(requestRepository).save(existing);
     }
 
     @Test
@@ -195,6 +206,22 @@ class RideCoordinationServiceTest {
     }
 
     @Test
+    void rejectRequestBlocksNonPendingRequest() {
+        RideRequest request = request(20L);
+        request.setStatus(RequestStatus.CONFIRMED);
+        when(requestRepository.findByIdForUpdate(20L)).thenReturn(Optional.of(request));
+        when(rideRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(ride));
+
+        RideOperationException error = assertThrows(RideOperationException.class,
+                () -> service.rejectRequest(20L, driver("driver@sfu.ca")));
+
+        assertEquals("This request is no longer pending.", error.getMessage());
+        assertEquals(RequestStatus.CONFIRMED, request.getStatus());
+        assertEquals(0, ride.getSeatsTaken());
+        verify(requestRepository, never()).save(any(RideRequest.class));
+    }
+
+    @Test
     void cancelPendingRequestDoesNotChangeSeatCount() {
         RideRequest request = request(30L);
         when(requestRepository.findByIdForUpdate(30L)).thenReturn(Optional.of(request));
@@ -251,7 +278,7 @@ class RideCoordinationServiceTest {
     }
 
     @Test
-    void deleteOwnedRideUsesCascadeRemoval() {
+    void deleteOwnedRideDelegatesDeletionToRideRepository() {
         when(rideRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(ride));
 
         service.deleteOwnedRide(10L, driver("driver@sfu.ca"));
