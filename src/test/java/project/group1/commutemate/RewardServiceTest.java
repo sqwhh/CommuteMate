@@ -46,57 +46,51 @@ class RewardServiceTest {
     }
 
     @Test
-    void totalPointsForDriver_sumsPointsAcrossAllTheirRides() {
+    void summaryForDriver_sumsPointsAndAveragesEcoScore() {
         when(rideService.findUpcomingByDriverEmail("alex@sfu.ca")).thenReturn(List.of(
                 ride("alex@sfu.ca", 20, 80),
                 ride("alex@sfu.ca", 15, 70)
         ));
 
-        int total = rewardService.totalPointsForDriver("alex@sfu.ca");
+        RewardSummary summary = rewardService.summaryForDriver("alex@sfu.ca");
 
-        assertEquals(35, total);
+        assertEquals(35, summary.totalPoints());
+        assertEquals(75, summary.averageEcoScore());
     }
 
     @Test
-    void totalPointsForDriver_returnsZero_whenDriverHasNoRides() {
+    void summaryForDriver_returnsEmpty_whenDriverHasNoRides() {
         when(rideService.findUpcomingByDriverEmail("nobody@sfu.ca")).thenReturn(List.of());
 
-        int total = rewardService.totalPointsForDriver("nobody@sfu.ca");
+        RewardSummary summary = rewardService.summaryForDriver("nobody@sfu.ca");
 
-        assertEquals(0, total);
+        assertEquals(0, summary.totalPoints());
+        assertEquals(0, summary.averageEcoScore());
     }
 
     @Test
-    void averageEcoScoreForDriver_averagesAcrossRides() {
-        when(rideService.findUpcomingByDriverEmail("priya@sfu.ca")).thenReturn(List.of(
-                ride("priya@sfu.ca", 10, 80),
-                ride("priya@sfu.ca", 10, 90)
-        ));
-
-        int avg = rewardService.averageEcoScoreForDriver("priya@sfu.ca");
-
-        assertEquals(85, avg);
-    }
-
-    @Test
-    void averageEcoScoreForDriver_returnsZero_whenDriverHasNoRides() {
-        when(rideService.findUpcomingByDriverEmail("nobody@sfu.ca")).thenReturn(List.of());
-
-        int avg = rewardService.averageEcoScoreForDriver("nobody@sfu.ca");
-
-        assertEquals(0, avg);
-    }
-
-    @Test
-    void averageEcoScoreForDriver_roundsDown_onUnevenDivision() {
+    void summaryForDriver_ecoScoreRoundsDown_onUnevenDivision() {
         // (80 + 81) / 2 = 80.5 -> integer division rounds down to 80
         when(rideService.findUpcomingByDriverEmail("marcus@sfu.ca")).thenReturn(List.of(
                 ride("marcus@sfu.ca", 10, 80),
                 ride("marcus@sfu.ca", 10, 81)
         ));
 
-        int avg = rewardService.averageEcoScoreForDriver("marcus@sfu.ca");
+        RewardSummary summary = rewardService.summaryForDriver("marcus@sfu.ca");
 
-        assertEquals(80, avg);
+        assertEquals(20, summary.totalPoints());
+        assertEquals(80, summary.averageEcoScore());
+    }
+
+    @Test
+    void summaryForDriver_onlyQueriesRideServiceOnce() {
+        when(rideService.findUpcomingByDriverEmail("priya@sfu.ca")).thenReturn(List.of(
+                ride("priya@sfu.ca", 10, 90)
+        ));
+
+        rewardService.summaryForDriver("priya@sfu.ca");
+
+        org.mockito.Mockito.verify(rideService, org.mockito.Mockito.times(1))
+                .findUpcomingByDriverEmail("priya@sfu.ca");
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import project.group1.commutemate.RewardService;
+import project.group1.commutemate.RewardSummary;
 import project.group1.commutemate.model.Profile;
 
 /**
@@ -32,15 +33,17 @@ public class CurrentUserService {
             return Optional.empty();
         }
         return userRepository.findByEmailIgnoreCase(auth.getName())
-                .map(u -> new Profile(
-                        u.getEmail(),
-                        u.getFullName(),
-                        u.getRole(),
-                        // Epic 4 draft: was hardcoded to 0, 0 before — now backed by
-                        // RewardService, keyed by email (matches RideService's
-                        // findUpcomingByDriverEmail after the Epic 5 PR #10 merge).
-                        rewardService.totalPointsForDriver(u.getEmail()),
-                        rewardService.averageEcoScoreForDriver(u.getEmail())
-                ));
+                .map(u -> {
+                    // Epic 4 draft: was hardcoded to 0, 0 before — now backed by
+                    // RewardService, keyed by email. Single query via
+                    // RewardSummary instead of two separate calls (review feedback).
+                    RewardSummary reward = rewardService.summaryForDriver(u.getEmail());
+                    return new Profile(
+                            u.getEmail(),
+                            u.getFullName(),
+                            u.getRole(),
+                            reward.totalPoints(),
+                            reward.averageEcoScore());
+                });
     }
 }
