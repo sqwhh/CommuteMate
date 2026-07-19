@@ -2,46 +2,94 @@ package project.group1.commutemate.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-/**
- * A carpool ride offered by a driver.
- * Ported from the prototype's {@code mock-rides.ts} data shape.
- */
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+/** A persistent carpool ride offered by a verified CommuteMate driver. */
+@Entity
+@Table(name = "rides")
 public class Ride {
 
     private static final DateTimeFormatter TIME_FMT =
             DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
+    private static final DateTimeFormatter DATE_FMT =
+            DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-    private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "driver_email", nullable = false, length = 190)
+    private String driverEmail;
+
+    @Column(name = "driver_name", nullable = false, length = 120)
     private String driver;
+
+    @Column(name = "driver_initials", nullable = false, length = 4)
     private String driverInitials;
+
+    @Column(name = "pickup_location", nullable = false, length = 180)
     private String from;
+
+    @Column(name = "destination", nullable = false, length = 180)
     private String to;
+
+    @Column(name = "depart_at", nullable = false)
     private LocalDateTime departAt;
+
+    @Column(nullable = false)
     private int seats;
+
+    @Column(name = "seats_taken", nullable = false)
     private int seatsTaken;
+
+    @Column(nullable = false)
     private int price;
+
+    @Column(nullable = false)
     private int points;
+
+    @Column(name = "eco_score", nullable = false)
     private int ecoScore;
+
+    @Column(nullable = false, length = 120)
     private String car;
+
+    @Column(nullable = false)
     private double rating;
+
+    @Column(length = 500)
     private String notes;
+
+    @OneToMany(mappedBy = "ride", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RideRequest> requests = new ArrayList<>();
 
     public Ride() {
     }
 
-    public Ride(String id, String driver, String driverInitials, String from, String to,
+    public Ride(String driverEmail, String driver, String driverInitials, String from, String to,
                 LocalDateTime departAt, int seats, int seatsTaken, int price, int points,
                 int ecoScore, String car, double rating, String notes) {
-        this.id = id;
+        this.driverEmail = driverEmail;
         this.driver = driver;
         this.driverInitials = driverInitials;
         this.from = from;
         this.to = to;
         this.departAt = departAt;
-        this.seats = seats;
-        this.seatsTaken = seatsTaken;
+        setSeats(seats);
+        setSeatsTaken(seatsTaken);
         this.price = price;
         this.points = points;
         this.ecoScore = ecoScore;
@@ -50,26 +98,52 @@ public class Ride {
         this.notes = notes;
     }
 
-    /** Seats still open for booking. */
     public int getSeatsLeft() {
-        return Math.max(0, seats - seatsTaken);
+        return seats - seatsTaken;
     }
 
     public boolean isFull() {
-        return getSeatsLeft() == 0;
+        return seatsTaken >= seats;
     }
 
-    /** Departure time formatted like "8:15 AM" for display. */
+    // Reserves exactly one seat after request is confirmed
+    public void reserveSeat() {
+        if (isFull()) {
+            throw new IllegalStateException("Cannot reserve a seat on a full ride.");
+        }
+        seatsTaken++;
+    }
+
+    // Releases exactly one seat after a confirmed request is cancelled
+    public void releaseSeat() {
+        if (seatsTaken <= 0) {
+            throw new IllegalStateException("Cannot release a seat when none are reserved.");
+        }
+        seatsTaken--;
+    }
+
     public String getDepartTime() {
         return departAt == null ? "" : departAt.format(TIME_FMT);
     }
 
-    public String getId() {
+    public String getDepartDate() {
+        return departAt == null ? "" : departAt.format(DATE_FMT);
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDriverEmail() {
+        return driverEmail;
+    }
+
+    public void setDriverEmail(String driverEmail) {
+        this.driverEmail = driverEmail;
     }
 
     public String getDriver() {
@@ -116,7 +190,14 @@ public class Ride {
         return seats;
     }
 
+    // Seats setter ensures that seatsTaken does not exceed seats
     public void setSeats(int seats) {
+        if (seats < 1) {
+            throw new IllegalArgumentException("A ride must have at least one seat.");
+        }
+        if (seatsTaken > seats) {
+            throw new IllegalArgumentException("Reserved seats cannot exceed total seats.");
+        }
         this.seats = seats;
     }
 
@@ -124,7 +205,14 @@ public class Ride {
         return seatsTaken;
     }
 
+    // SeatsTaken setter ensures that seatsTaken does not exceed seats
     public void setSeatsTaken(int seatsTaken) {
+        if (seatsTaken < 0) {
+            throw new IllegalArgumentException("Reserved seats cannot be negative.");
+        }
+        if (seats > 0 && seatsTaken > seats) {
+            throw new IllegalArgumentException("Reserved seats cannot exceed total seats.");
+        }
         this.seatsTaken = seatsTaken;
     }
 
@@ -174,5 +262,9 @@ public class Ride {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public List<RideRequest> getRequests() {
+        return requests;
     }
 }
