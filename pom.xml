@@ -46,6 +46,24 @@
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
+		<!-- Epic 2: auto-configured RestClient.Builder for calling external APIs
+		     (Open-Meteo). Needed so the HTTP timeouts in application.properties apply. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-restclient</artifactId>
+		</dependency>
+
+		<!-- Epic 2: short-term caching of external API responses, so dashboard
+		     reloads don't re-hit third-party APIs on every request -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+
 		<!-- Epic 1: form login, session handling, BCrypt password hashing -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
