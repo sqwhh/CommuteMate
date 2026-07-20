@@ -9,7 +9,7 @@ public class Profile {
 
     private String email;
     private String fullName;
-    private Role role = Role.BOTH;
+    private Role role = Role.RIDER;
     private int points;
     private int ecoScore;
 
@@ -24,12 +24,12 @@ public class Profile {
         this.ecoScore = ecoScore;
     }
 
-    /** True when the member may use driver features (role DRIVER or BOTH). */
+    /** True when the member may use driver features . */
     public boolean isDriverCapable() {
         return role != Role.RIDER;
     }
 
-    /** True when the member may use rider features (role RIDER or BOTH). */
+    /** True when the member may use rider features . */
     public boolean isRiderCapable() {
         return role != Role.DRIVER;
     }

@@ -53,7 +53,7 @@ class RideAuthorizationControllerTest {
     @BeforeEach
     void setUp() {
         signedInProfile = new Profile(
-                SIGNED_IN_EMAIL, "Signed In Member", Role.BOTH, 0, 0);
+                SIGNED_IN_EMAIL, "Signed In Member", Role.RIDER, 0, 0);
         when(currentUserService.currentProfile()).thenReturn(Optional.of(signedInProfile));
     }
 
