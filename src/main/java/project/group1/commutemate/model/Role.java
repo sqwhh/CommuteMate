@@ -16,9 +16,6 @@ public enum Role {
         };
     }
 
-    public static Role fromString(String value) {
-        return from(value);
-    }
 
     /** Lower-case label used in the UI, e.g. "driver". */
     public String label() {
