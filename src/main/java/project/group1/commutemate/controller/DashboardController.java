@@ -85,6 +85,8 @@ public class DashboardController extends AuthenticatedController {
         model.addAttribute("myRides", myRides);
         model.addAttribute("driverRequests", requests);
         model.addAttribute("upcomingRideCount", myRides.size());
+        // Issue #25: driver dashboard previously showed hardcoded points/eco-score.
+        model.addAttribute("profile", profile);
         model.addAttribute("confirmedRiderCount", requests.stream()
                 .filter(request -> request.getStatus() == RequestStatus.CONFIRMED)
                 .count());
